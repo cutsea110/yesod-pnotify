@@ -1,16 +1,9 @@
 {-# LANGUAGE OverloadedStrings, QuasiQuotes, TemplateHaskell, MultiParamTypeClasses, TypeFamilies #-}
-module Devel where
 
 import Yesod
 import Yesod.Form.Jquery
 import Data.Text (Text)
-import Data.Monoid ((<>), mempty)
 import Control.Applicative ((<$>),(<*>))
-
-import qualified Data.Text as T
-import qualified Data.Text.Lazy as TL
-import Control.Monad.Trans.Maybe
-import Data.Char (toLower)
 
 import Yesod.Goodies.PNotify
 
@@ -66,15 +59,15 @@ getPersonR = do
 
 postPersonR :: Handler RepHtml
 postPersonR = do
-  ((result, widget), enctype) <- runFormPost personForm
+  ((result, _), _) <- runFormPost personForm
   case result of
-    FormSuccess person -> do 
-      setPNotify $ PNotify JqueryUI Success "Updated" "ユーザー情報を更新しました."
-      setPNotify $ PNotify JqueryUI Error "Error" "テストでエラー発生."
-      setPNotify $ PNotify JqueryUI Notice "Notice" "注意せよ."
+    FormSuccess _ -> do 
+      setPNotify $ PNotify JqueryUI Success "Updated" "Update User profile."
+      setPNotify $ PNotify JqueryUI Notice "Notice" "More notice."
+      setPNotify $ PNotify JqueryUI Info "Information" "And more information."
       redirect PersonR
     _ -> do
-      setPNotify $ PNotify JqueryUI Error "Error" "ユーザーの更新に失敗しました."
+      setPNotify $ PNotify JqueryUI Error "Error" "Fail to update user profile"
       redirect PersonR
 
 main :: IO ()
