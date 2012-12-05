@@ -19,6 +19,7 @@ import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
 import Control.Monad.Trans.Maybe
 import Data.Char (toLower)
+import Text.Julius (RawJS(..))
 
 data PNotify = PNotify 
                { sty :: NotifyStyling
@@ -71,6 +72,6 @@ pnotify y = do
       addScriptEither $ urlPnotifyJs y
       addStylesheetEither $ urlPnotifyCss y
       addStylesheetEither $ urlPnotifyIconsCss y
-      let toJs p = [julius|{styling:'#{map toLower $ show $ sty p}',title:'#{ttl p}',text:'#{msg p}',type:'#{map toLower $ show $ typ p}'},|]
+      let toJs p = [julius|{styling:'#{rawJS $ map toLower $ show $ sty p}',title:'#{rawJS $ ttl p}',text:'#{rawJS $ msg p}',type:'#{rawJS $ map toLower $ show $ typ p}'},|]
           ws = foldr ((<>).toJs) mempty ps
       toWidget [julius|$(document).ready(function(e){var ws=[^{ws}];for(var i in ws){$.pnotify(ws[i]);}});|]
