@@ -37,11 +37,11 @@ data NotifyStyling = JqueryUI | Bootstrap
 
 class YesodJquery a => YesodJqueryPnotify a where
   urlPnotifyJs :: a -> Either (Route a) Text
-  urlPnotifyJs _ = Right "http://pinesframework.org/pnotify/jquery.pnotify.min.js"
+  urlPnotifyJs _ = Right "http://cdn.jsdelivr.net/pnotify/1.2/jquery.pnotify.min.js"
   urlPnotifyCss :: a -> Either (Route a) Text
-  urlPnotifyCss _ = Right "http://pinesframework.org/pnotify/jquery.pnotify.default.css"
+  urlPnotifyCss _ = Right "http://cdn.jsdelivr.net/pnotify/1.2/jquery.pnotify.default.css"
   urlPnotifyIconsCss :: a -> Either (Route a) Text
-  urlPnotifyIconsCss _ = Right "http://pinesframework.org/pnotify/jquery.pnotify.default.icons.css"
+  urlPnotifyIconsCss _ = Right "http://cdn.jsdelivr.net/pnotify/1.2/jquery.pnotify.default.icons.css"
 
 notifyKey :: Text
 notifyKey = "_PNotify"
