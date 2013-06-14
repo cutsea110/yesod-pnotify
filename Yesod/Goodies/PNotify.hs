@@ -46,23 +46,23 @@ class YesodJquery a => YesodJqueryPnotify a where
 notifyKey :: Text
 notifyKey = "_PNotify"
 
-_setPNotify :: [PNotify] -> GHandler sub master ()
+_setPNotify :: [PNotify] -> HandlerT site IO ()
 _setPNotify = setSession notifyKey . T.concat . TL.toChunks . TL.pack . show
 
-getPNotify :: GHandler sub master (Maybe [PNotify])
+getPNotify :: HandlerT site IO (Maybe [PNotify])
 getPNotify = runMaybeT $ do
   ns <- MaybeT $ lookupSession notifyKey
   lift $ deleteSession notifyKey
   return $ read $ T.unpack ns
 
-setPNotify :: PNotify -> GHandler sub master ()
+setPNotify :: PNotify -> HandlerT site IO ()
 setPNotify n = do
   mns <- getPNotify
   _setPNotify (n:maybe [] id mns)
 
-pnotify :: YesodJqueryPnotify m => m -> GWidget s m ()
+pnotify :: YesodJqueryPnotify site => site -> WidgetT site IO ()
 pnotify y = do
-  mnotify <- lift getPNotify
+  mnotify <- handlerToWidget getPNotify
   case mnotify of
     Nothing -> return ()
     Just ps -> do
