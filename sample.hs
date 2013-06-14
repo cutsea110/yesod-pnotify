@@ -21,7 +21,7 @@ instance Yesod Devel where
     pc <- widgetToPageContent $ do
       widget
       pnotify y
-    hamletToRepHtml [hamlet|
+    giveUrlRenderer [hamlet|
 $doctype 5
 <html>
   <head>
@@ -48,7 +48,7 @@ personForm = renderDivs $ Person
              <$> areq textField "Name" Nothing
              <*> areq intField "Age" Nothing
 
-getPersonR :: Handler RepHtml
+getPersonR :: Handler Html
 getPersonR = do
   (widget, enctype) <- generateFormPost personForm
   defaultLayout [whamlet|
@@ -57,7 +57,7 @@ getPersonR = do
   <input type=submit>
 |]
 
-postPersonR :: Handler RepHtml
+postPersonR :: Handler Html
 postPersonR = do
   ((result, _), _) <- runFormPost personForm
   case result of
@@ -71,4 +71,4 @@ postPersonR = do
       redirect PersonR
 
 main :: IO ()
-main = warpDebug 3000 Devel
+main = warp 3000 Devel
