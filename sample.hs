@@ -43,7 +43,7 @@ data Person = Person { name :: Text
                      , age :: Int
                      }
               deriving (Show)
-personForm :: Html -> MForm Devel Devel (FormResult Person, Widget)
+personForm :: Html -> MForm Handler (FormResult Person, Widget)
 personForm = renderDivs $ Person
              <$> areq textField "Name" Nothing
              <*> areq intField "Age" Nothing
