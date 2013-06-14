@@ -1,4 +1,4 @@
-{-# LANGUAGE OverloadedStrings, QuasiQuotes, TemplateHaskell, MultiParamTypeClasses, TypeFamilies, FlexibleContexts #-}
+{-# LANGUAGE OverloadedStrings, QuasiQuotes, TemplateHaskell, MultiParamTypeClasses, TypeFamilies #-}
 module Yesod.Goodies.PNotify 
        ( PNotify(..)
        , NotifyType(..)
@@ -17,7 +17,6 @@ import Data.Text (Text)
 import Data.Monoid ((<>), mempty)
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
-import Control.Monad.Trans.Resource
 import Control.Monad.Trans.Maybe
 import Data.Char (toLower)
 import Text.Julius (RawJS(..))
@@ -47,39 +46,21 @@ class YesodJquery a => YesodJqueryPnotify a where
 notifyKey :: Text
 notifyKey = "_PNotify"
 
-_setPNotify :: (MonadThrow m, 
-                MonadUnsafeIO m,
-                MonadBaseControl IO m,
-                MonadIO m) => 
-               [PNotify] -> HandlerT site m ()
+_setPNotify :: [PNotify] -> HandlerT site IO ()
 _setPNotify = setSession notifyKey . T.concat . TL.toChunks . TL.pack . show
 
-getPNotify :: (MonadThrow m, 
-               MonadUnsafeIO m,
-               MonadBaseControl IO m,
-               MonadIO m) => 
-              HandlerT site m (Maybe [PNotify])
+getPNotify :: HandlerT site IO (Maybe [PNotify])
 getPNotify = runMaybeT $ do
   ns <- MaybeT $ lookupSession notifyKey
   lift $ deleteSession notifyKey
   return $ read $ T.unpack ns
 
-setPNotify :: (Monad m,
-               MonadThrow m,
-               MonadUnsafeIO m,
-               MonadBaseControl IO m,
-               MonadIO m) =>
-              PNotify -> HandlerT site m ()
+setPNotify :: PNotify -> HandlerT site IO ()
 setPNotify n = do
   mns <- getPNotify
   _setPNotify (n:maybe [] id mns)
 
-pnotify :: (YesodJqueryPnotify site, 
-            MonadThrow m, 
-            MonadUnsafeIO m, 
-            MonadBaseControl IO m,
-            MonadIO m) => 
-           site -> WidgetT site m ()
+pnotify :: YesodJqueryPnotify site => site -> WidgetT site IO ()
 pnotify y = do
   mnotify <- handlerToWidget getPNotify
   case mnotify of
