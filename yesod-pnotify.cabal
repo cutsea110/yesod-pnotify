@@ -2,7 +2,7 @@
 -- documentation, see http://haskell.org/cabal/users-guide/
 
 name:                yesod-pnotify
-version:             0.4.1.0
+version:             0.4.2.0
 synopsis:            Yet another getMessage/setMessage using pnotify jquery plugins
 description:         Yet another getMessage/setMessage using pnotify jquery plugins
 homepage:            https://github.com/cutsea110/yesod-pnotify
@@ -24,5 +24,3 @@ library
                        , text >= 0.11 && < 0.12
                        , transformers >= 0.3 && < 0.4
                        , shakespeare-js >= 1.1 && < 1.2
-                       , resourcet >= 0.4 && < 0.5
-
