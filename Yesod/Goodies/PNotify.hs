@@ -32,16 +32,17 @@ data PNotify = PNotify
 data NotifyType = Notice | Info | Success | Error
                 deriving (Show, Read)
 
-data NotifyStyling = JqueryUI | Bootstrap
+data NotifyStyling = JqueryUI | Bootstrap3
                    deriving (Show, Read)
+
 
 class YesodJquery a => YesodJqueryPnotify a where
   urlPnotifyJs :: a -> Either (Route a) Text
-  urlPnotifyJs _ = Right "http://cdn.jsdelivr.net/pnotify/1.2/jquery.pnotify.min.js"
+  urlPnotifyJs _ = Right "http://cdn.jsdelivr.net/pnotify/2.0.0/pnotify.all.min.js"
   urlPnotifyCss :: a -> Either (Route a) Text
-  urlPnotifyCss _ = Right "http://cdn.jsdelivr.net/pnotify/1.2/jquery.pnotify.default.css"
+  urlPnotifyCss _ = Right "http://cdn.jsdelivr.net/pnotify/2.0.0/pnotify.all.min.css"
   urlPnotifyIconsCss :: a -> Either (Route a) Text
-  urlPnotifyIconsCss _ = Right "http://cdn.jsdelivr.net/pnotify/1.2/jquery.pnotify.default.icons.css"
+  urlPnotifyIconsCss _ = Right "http://cdn.jsdelivr.net/pnotify/2.0.0/pnotify.picon.css"
 
 notifyKey :: Text
 notifyKey = "_PNotify"
@@ -74,4 +75,4 @@ pnotify y = do
       addStylesheetEither $ urlPnotifyIconsCss y
       let toJs p = [julius|{styling:'#{rawJS $ map toLower $ show $ sty p}',title:'#{rawJS $ ttl p}',text:'#{rawJS $ msg p}',type:'#{rawJS $ map toLower $ show $ typ p}'},|]
           ws = foldr ((<>).toJs) mempty ps
-      toWidget [julius|$(document).ready(function(e){var ws=[^{ws}];for(var i in ws){$.pnotify(ws[i]);}});|]
+      toWidget [julius|$(document).ready(function(e){var ws=[^{ws}];for(var i in ws){new PNotify(ws[i]);}});|]

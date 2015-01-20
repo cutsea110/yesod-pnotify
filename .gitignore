@@ -1,2 +1,5 @@
 client_session_key.aes
 dist
+*_flymake.hs
+.cabal-sandbox/
+cabal.sandbox.config
