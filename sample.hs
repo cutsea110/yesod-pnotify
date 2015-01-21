@@ -4,6 +4,7 @@ import Yesod
 import Yesod.Form.Jquery
 import Data.Text (Text)
 import Control.Applicative ((<$>),(<*>))
+import Text.Blaze.Html (preEscapedToHtml)
 
 import Yesod.Goodies.PNotify
 
@@ -62,9 +63,12 @@ postPersonR = do
   ((result, _), _) <- runFormPost personForm
   case result of
     FormSuccess _ -> do 
-      setPNotify $ PNotify JqueryUI Success "Updated" "Update User profile."
-      setPNotify $ PNotify JqueryUI Notice "Notice" "More notice."
-      setPNotify $ PNotify JqueryUI Info "Information" "And more information."
+      let updateMsg = "<b>Update</b> User profile." :: Text
+          info = "<i>Information</i>" :: Text
+          infoMsg = "And <u>more</u> information." :: Text
+      setPNotify $ PNotify JqueryUI Success "Updated" $ preEscapedToHtml updateMsg
+      setPNotify $ PNotify JqueryUI Notice "Notice" "More notice. <no tag>"
+      setPNotify $ PNotify JqueryUI Info (preEscapedToHtml info) $ preEscapedToHtml infoMsg
       redirect PersonR
     _ -> do
       setPNotify $ PNotify JqueryUI Error "Error" "Fail to update user profile"
