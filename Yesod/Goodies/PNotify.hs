@@ -10,7 +10,7 @@ module Yesod.Goodies.PNotify
        ) where
 
 import Yesod
-import Yesod.Form.Jquery
+import Yesod.Form.Jquery hiding (urlJqueryJs, urlJqueryUiCss)
 
 import Data.Text (Text)
 import Data.Monoid ((<>), mempty)
@@ -35,10 +35,23 @@ data NotifyStyling = JqueryUI | Bootstrap3 | BrightTheme
                    deriving (Show, Read)
 
 class YesodJquery a => YesodJqueryPnotify a where
+  urlJqueryJs :: a -> Either (Route a) Text
+  urlJqueryJs _ = Right "//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"
+  urlJqueryUiCss :: a -> Either (Route a) Text
+  urlJqueryUiCss _ = Right "//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css"
+  
   urlPnotifyJs :: a -> Either (Route a) Text
-  urlPnotifyJs _ = Right "//cdn.jsdelivr.net/pnotify/2.0.0/pnotify.all.min.js"
+  urlPnotifyJs _ = Right "//cdnjs.cloudflare.com/ajax/libs/pnotify/2.1.0/pnotify.core.min.js"
   urlPnotifyCss :: a -> Either (Route a) Text
-  urlPnotifyCss _ = Right "//cdn.jsdelivr.net/pnotify/2.0.0/pnotify.all.min.css"
+  urlPnotifyCss _ = Right "//cdnjs.cloudflare.com/ajax/libs/pnotify/2.1.0/pnotify.core.min.css"
+
+  urlBootstrap3Js :: a -> Either (Route a) Text
+  urlBootstrap3Js _ = Right "//netdna.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"
+  urlBootstrap3Css :: a -> Either (Route a) Text
+  urlBootstrap3Css _ = Right "//netdna.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"
+
+  urlBrightThemeCss :: a -> Either (Route a) Text
+  urlBrightThemeCss _ = Right "//cdnjs.cloudflare.com/ajax/libs/pnotify/2.1.0/pnotify.brighttheme.min.css"
 
 notifyKey :: Text
 notifyKey = "_PNotify"
@@ -72,6 +85,10 @@ pnotify y = do
       addScriptEither $ urlJqueryJs y
       addScriptEither $ urlPnotifyJs y
       addStylesheetEither $ urlPnotifyCss y
+      addScriptEither $ urlBootstrap3Js y
+      addStylesheetEither $ urlBootstrap3Css y
+      addStylesheetEither $ urlBrightThemeCss y
+      addStylesheetEither $ urlJqueryUiCss y
       let toJs p = [julius|{styling:'#{rawJS $ map toLower $ show $ sty p}'
                            ,title:'#{rawJS $ ttl p}'
                            ,text:'#{rawJS $ msg p}'
