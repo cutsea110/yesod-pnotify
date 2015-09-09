@@ -12,12 +12,13 @@ module Yesod.Goodies.PNotify
 import Yesod
 import Yesod.Form.Jquery hiding (urlJqueryJs, urlJqueryUiCss)
 
-import Data.Text (Text)
-import Data.Monoid ((<>), mempty)
-import qualified Data.Text as T
-import qualified Data.Text.Lazy as TL
 import Control.Monad.Trans.Maybe
 import Data.Char (toLower)
+import Data.List (nub)
+import Data.Monoid ((<>), mempty)
+import Data.Text (Text)
+import qualified Data.Text as T
+import qualified Data.Text.Lazy as TL
 import Text.Julius (RawJS(..))
 
 data PNotify = PNotify 
@@ -26,13 +27,13 @@ data PNotify = PNotify
                , ttl :: Text
                , msg :: Text
                }
-             deriving (Show, Read)
+             deriving (Show, Read, Eq)
 
 data NotifyType = Notice | Info | Success | Error
-                deriving (Show, Read)
+                deriving (Show, Read, Eq)
 
 data NotifyStyling = JqueryUI | Bootstrap3 | BrightTheme | FontAwesome
-                   deriving (Show, Read)
+                   deriving (Show, Read, Eq)
 
 class YesodJquery a => YesodJqueryPnotify a where
   urlJqueryJs :: a -> Either (Route a) Text
@@ -74,10 +75,27 @@ getPNotify = runMaybeT $ do
   lift $ deleteSession notifyKey
   return $ fromText ns
 
+
 setPNotify :: PNotify -> HandlerT site IO ()
 setPNotify n = do
   mns <- getPNotify
   _setPNotify (n:maybe [] id mns)
+
+optionalLoadJsCss :: (MonadWidget m, YesodJqueryPnotify (HandlerSite m)) =>
+                     HandlerSite m -> [PNotify] -> m()
+optionalLoadJsCss y = sequence_ . map trans . nub . map sty
+    where
+      trans s = case s of
+        JqueryUI
+          -> addStylesheetEither $ urlJqueryUiCss y
+        Bootstrap3
+          -> do { addScriptEither $ urlBootstrap3Js y
+                ; addStylesheetEither $ urlBootstrap3Css y
+                }
+        BrightTheme
+          -> addStylesheetEither $ urlBrightThemeCss y
+        FontAwesome
+          -> addStylesheetEither $ urlFontAwesomeCss y
 
 pnotify :: YesodJqueryPnotify site => site -> WidgetT site IO ()
 pnotify y = do
@@ -88,11 +106,9 @@ pnotify y = do
       addScriptEither $ urlJqueryJs y
       addScriptEither $ urlPnotifyJs y
       addStylesheetEither $ urlPnotifyCss y
-      addScriptEither $ urlBootstrap3Js y
-      addStylesheetEither $ urlBootstrap3Css y
-      addStylesheetEither $ urlBrightThemeCss y
-      addStylesheetEither $ urlJqueryUiCss y
-      addStylesheetEither $ urlFontAwesomeCss y
+
+      optionalLoadJsCss y ps
+
       let toJs p = [julius|{styling:'#{rawJS $ map toLower $ show $ sty p}'
                            ,title:'#{rawJS $ ttl p}'
                            ,text:'#{rawJS $ msg p}'
@@ -100,3 +116,5 @@ pnotify y = do
                            },|]
           ws = foldr ((<>).toJs) mempty ps
       toWidget [julius|$(function(){var ws=[^{ws}];for(var i in ws){new PNotify(ws[i]);}});|]
+    where
+      when b f = if b then f else return ()
