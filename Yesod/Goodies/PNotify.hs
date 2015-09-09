@@ -29,25 +29,18 @@ data PNotify = PNotify
              deriving (Show, Read)
 
 data NotifyType = Notice | Info | Success | Error
-                deriving (Read)
-instance Show NotifyType where
-  show Notice = "notice"
-  show Info = "info"
-  show Success = "success"
-  show Error = "error"
+                deriving (Show, Read)
 
 data NotifyStyling = JqueryUI | Bootstrap3 | BrightTheme
-                   deriving (Read)
-instance Show NotifyStyling where
-  show JqueryUI = "jqueryui"
-  show Bootstrap3 = "bootstrap3"
-  show BrightTheme = "brighttheme"
+                   deriving (Show, Read)
 
 class YesodJquery a => YesodJqueryPnotify a where
+--  urlJqueryJs :: a -> Either (Route a) Text
+--  urlJqueryJs _ = Right "//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"
   urlPnotifyJs :: a -> Either (Route a) Text
-  urlPnotifyJs _ = Right "http://cdn.jsdelivr.net/pnotify/2.1.0/pnotify.all.min.js"
+  urlPnotifyJs _ = Right "//cdn.jsdelivr.net/pnotify/2.0.0/pnotify.all.min.js"
   urlPnotifyCss :: a -> Either (Route a) Text
-  urlPnotifyCss _ = Right "http://cdn.jsdelivr.net/pnotify/2.1.0/pnotify.all.min.css"
+  urlPnotifyCss _ = Right "//cdn.jsdelivr.net/pnotify/2.0.0/pnotify.all.min.css"
 
 notifyKey :: Text
 notifyKey = "_PNotify"
@@ -81,10 +74,10 @@ pnotify y = do
       addScriptEither $ urlJqueryJs y
       addScriptEither $ urlPnotifyJs y
       addStylesheetEither $ urlPnotifyCss y
-      let toJs p = [julius|{styling:'#{rawJS $ show $ sty p}'
+      let toJs p = [julius|{styling:'#{rawJS $ map toLower $ show $ sty p}'
                            ,title:'#{rawJS $ ttl p}'
                            ,text:'#{rawJS $ msg p}'
-                           ,type:'#{rawJS $ show $ typ p}'
+                           ,type:'#{rawJS $ map toLower $ show $ typ p}'
                            },|]
           ws = foldr ((<>).toJs) mempty ps
-      toWidget [julius|$(function(){var ws=[^{ws}];for(var i in ws){new Pnotify(ws[i]);}});|]
+      toWidget [julius|$(function(){var ws=[^{ws}];for(var i in ws){new PNotify(ws[i]);}});|]

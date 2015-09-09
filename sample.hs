@@ -1,5 +1,3 @@
-{-# LANGUAGE OverloadedStrings, QuasiQuotes, TemplateHaskell, MultiParamTypeClasses, TypeFamilies #-}
-
 import Yesod
 import Yesod.Form.Jquery
 import Data.Text (Text)
@@ -21,7 +19,7 @@ instance Yesod Devel where
     pc <- widgetToPageContent $ do
       widget
       pnotify y
-    giveUrlRenderer [hamlet|
+    withUrlRenderer [hamlet|
 $doctype 5
 <html>
   <head>
