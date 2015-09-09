@@ -35,8 +35,6 @@ data NotifyStyling = JqueryUI | Bootstrap3 | BrightTheme
                    deriving (Show, Read)
 
 class YesodJquery a => YesodJqueryPnotify a where
---  urlJqueryJs :: a -> Either (Route a) Text
---  urlJqueryJs _ = Right "//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"
   urlPnotifyJs :: a -> Either (Route a) Text
   urlPnotifyJs _ = Right "//cdn.jsdelivr.net/pnotify/2.0.0/pnotify.all.min.js"
   urlPnotifyCss :: a -> Either (Route a) Text
