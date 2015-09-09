@@ -1,4 +1,3 @@
-{-# LANGUAGE OverloadedStrings, QuasiQuotes, TemplateHaskell, MultiParamTypeClasses, TypeFamilies #-}
 module Yesod.Goodies.PNotify 
        ( PNotify(..)
        , NotifyType(..)
@@ -11,7 +10,7 @@ module Yesod.Goodies.PNotify
        ) where
 
 import Yesod
-import Yesod.Form.Jquery
+import Yesod.Form.Jquery hiding (urlJqueryJs, urlJqueryUiCss)
 
 import Data.Text (Text)
 import Data.Monoid ((<>), mempty)
@@ -32,28 +31,48 @@ data PNotify = PNotify
 data NotifyType = Notice | Info | Success | Error
                 deriving (Show, Read)
 
-data NotifyStyling = JqueryUI | Bootstrap
+data NotifyStyling = JqueryUI | Bootstrap3 | BrightTheme | FontAwesome
                    deriving (Show, Read)
 
 class YesodJquery a => YesodJqueryPnotify a where
+  urlJqueryJs :: a -> Either (Route a) Text
+  urlJqueryJs _ = Right "//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"
+  urlJqueryUiCss :: a -> Either (Route a) Text
+  urlJqueryUiCss _ = Right "//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css"
+  
   urlPnotifyJs :: a -> Either (Route a) Text
-  urlPnotifyJs _ = Right "http://cdn.jsdelivr.net/pnotify/1.2/jquery.pnotify.min.js"
+  urlPnotifyJs _ = Right "//cdnjs.cloudflare.com/ajax/libs/pnotify/2.1.0/pnotify.core.min.js"
   urlPnotifyCss :: a -> Either (Route a) Text
-  urlPnotifyCss _ = Right "http://cdn.jsdelivr.net/pnotify/1.2/jquery.pnotify.default.css"
-  urlPnotifyIconsCss :: a -> Either (Route a) Text
-  urlPnotifyIconsCss _ = Right "http://cdn.jsdelivr.net/pnotify/1.2/jquery.pnotify.default.icons.css"
+  urlPnotifyCss _ = Right "//cdnjs.cloudflare.com/ajax/libs/pnotify/2.1.0/pnotify.core.min.css"
+
+  urlBootstrap3Js :: a -> Either (Route a) Text
+  urlBootstrap3Js _ = Right "//netdna.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"
+  urlBootstrap3Css :: a -> Either (Route a) Text
+  urlBootstrap3Css _ = Right "//netdna.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"
+
+  urlBrightThemeCss :: a -> Either (Route a) Text
+  urlBrightThemeCss _ = Right "//cdnjs.cloudflare.com/ajax/libs/pnotify/2.1.0/pnotify.brighttheme.min.css"
+
+  urlFontAwesomeCss :: a -> Either (Route a) Text
+  urlFontAwesomeCss _ = Right "//netdna.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css"
 
 notifyKey :: Text
 notifyKey = "_PNotify"
 
+toText :: [PNotify] -> Text
+toText = T.concat . TL.toChunks . TL.pack . show
+
+fromText :: Text -> [PNotify]
+fromText = read . T.unpack
+
 _setPNotify :: [PNotify] -> HandlerT site IO ()
-_setPNotify = setSession notifyKey . T.concat . TL.toChunks . TL.pack . show
+_setPNotify = setSession notifyKey . toText
 
 getPNotify :: HandlerT site IO (Maybe [PNotify])
 getPNotify = runMaybeT $ do
   ns <- MaybeT $ lookupSession notifyKey
   lift $ deleteSession notifyKey
-  return $ read $ T.unpack ns
+  return $ fromText ns
 
 setPNotify :: PNotify -> HandlerT site IO ()
 setPNotify n = do
@@ -67,11 +86,17 @@ pnotify y = do
     Nothing -> return ()
     Just ps -> do
       addScriptEither $ urlJqueryJs y
-      addScriptEither $ urlJqueryUiJs y
-      addStylesheetEither $ urlJqueryUiCss y
       addScriptEither $ urlPnotifyJs y
       addStylesheetEither $ urlPnotifyCss y
-      addStylesheetEither $ urlPnotifyIconsCss y
-      let toJs p = [julius|{styling:'#{rawJS $ map toLower $ show $ sty p}',title:'#{rawJS $ ttl p}',text:'#{rawJS $ msg p}',type:'#{rawJS $ map toLower $ show $ typ p}'},|]
+      addScriptEither $ urlBootstrap3Js y
+      addStylesheetEither $ urlBootstrap3Css y
+      addStylesheetEither $ urlBrightThemeCss y
+      addStylesheetEither $ urlJqueryUiCss y
+      addStylesheetEither $ urlFontAwesomeCss y
+      let toJs p = [julius|{styling:'#{rawJS $ map toLower $ show $ sty p}'
+                           ,title:'#{rawJS $ ttl p}'
+                           ,text:'#{rawJS $ msg p}'
+                           ,type:'#{rawJS $ map toLower $ show $ typ p}'
+                           },|]
           ws = foldr ((<>).toJs) mempty ps
-      toWidget [julius|$(document).ready(function(e){var ws=[^{ws}];for(var i in ws){$.pnotify(ws[i]);}});|]
+      toWidget [julius|$(function(){var ws=[^{ws}];for(var i in ws){new PNotify(ws[i]);}});|]
