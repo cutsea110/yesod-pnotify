@@ -28,128 +28,128 @@ import Yesod.Goodies.PNotify.Types.Instances
 
 data PNotify = PNotify
                { _title                    :: Either Bool Text
-               , _title_escape             :: Either Bool Text
+--               , _title_escape             :: Either Bool Text
                , _text                     :: Either Bool Text
-               , _text_escape              :: Either Bool Text
+--               , _text_escape              :: Either Bool Text
                , _styling                  :: NotifyStyling
-               , _addclass                 :: Text
-               , _cornerclass              :: Text
-               , _auto_display             :: Bool
-               , _width                    :: Text
-               , _min_height               :: Text
+--               , _addclass                 :: Text
+--               , _cornerclass              :: Text
+--               , _auto_display             :: Bool
+--               , _width                    :: Text
+--               , _min_height               :: Text
                , _type                     :: NotifyType
-               , _icon                     :: Either Bool Text
-               , _animation                :: AnimationType
-               , _animate_speed            ::AnimateSpeed
-               , _position_animate_speed   :: Int
-               , _opacity                  :: Double
-               , _shadow                   :: Bool
-               , _hide                     :: Bool
-               , _delay                    :: Int
-               , _mouse_reset              :: Bool
-               , _remove                   :: Bool
-               , _insert_brs               :: Bool
+--               , _icon                     :: Either Bool Text
+--               , _animation                :: AnimationType
+--               , _animate_speed            ::AnimateSpeed
+--               , _position_animate_speed   :: Int
+--               , _opacity                  :: Double
+--               , _shadow                   :: Bool
+--               , _hide                     :: Bool
+--               , _delay                    :: Int
+--               , _mouse_reset              :: Bool
+--               , _remove                   :: Bool
+--               , _insert_brs               :: Bool
                }
              deriving (Show, Read, Eq, Ord)
 instance FromJSON PNotify where
   parseJSON (Object v) = PNotify <$>
                          v .: "title" <*>
-                         v .: "title_escape" <*>
+--                         v .: "title_escape" <*>
                          v .: "text" <*>
-                         v .: "text_escape" <*>
+--                         v .: "text_escape" <*>
                          v .: "styling" <*>
-                         v .: "addclass" <*>
-                         v .: "cornerclass" <*>
-                         v .: "auto_display" <*>
-                         v .: "width" <*>
-                         v .: "min_height" <*>
-                         v .: "type" <*>
-                         v .: "icon" <*>
-                         v .: "animation" <*>
-                         v .: "animate_speed" <*>
-                         v .: "position_animate_speed" <*>
-                         v .: "opacity" <*>
-                         v .: "shadow" <*>
-                         v .: "hide" <*>
-                         v .: "delay" <*>
-                         v .: "mouse_reset" <*>
-                         v .: "remove" <*>
-                         v .: "insert_brs"
+--                         v .: "addclass" <*>
+--                         v .: "cornerclass" <*>
+--                         v .: "auto_display" <*>
+--                         v .: "width" <*>
+--                         v .: "min_height" <*>
+                         v .: "type" -- <*>
+--                         v .: "icon" <*>
+--                         v .: "animation" <*>
+--                         v .: "animate_speed" <*>
+--                         v .: "position_animate_speed" <*>
+--                         v .: "opacity" <*>
+--                         v .: "shadow" <*>
+--                         v .: "hide" <*>
+--                         v .: "delay" <*>
+--                         v .: "mouse_reset" <*>
+--                         v .: "remove" <*>
+--                         v .: "insert_brs"
   parseJSON _ = mzero
 
 instance ToJSON PNotify where
   toJSON (PNotify { _title
-                  , _title_escape
+--                  , _title_escape
                   , _text
-                  , _text_escape
+--                  , _text_escape
                   , _styling
-                  , _addclass
-                  , _cornerclass
-                  , _auto_display
-                  , _width
-                  , _min_height
+--                  , _addclass
+--                  , _cornerclass
+--                  , _auto_display
+--                  , _width
+--                  , _min_height
                   , _type
-                  , _icon
-                  , _animation
-                  , _animate_speed
-                  , _position_animate_speed
-                  , _opacity
-                  , _shadow
-                  , _hide
-                  , _delay
-                  , _mouse_reset
-                  , _remove
-                  , _insert_brs
+--                  , _icon
+--                  , _animation
+--                  , _animate_speed
+--                  , _position_animate_speed
+--                  , _opacity
+--                  , _shadow
+--                  , _hide
+--                  , _delay
+--                  , _mouse_reset
+--                  , _remove
+--                  , _insert_brs
                   })
       = object [ "title"                    .= _title
-               , "title_escape"             .= _title_escape
+--               , "title_escape"             .= _title_escape
                , "text"                     .= _text
-               , "text_escape"              .= _text_escape
+--               , "text_escape"              .= _text_escape
                , "styling"                  .= _styling
-               , "addclass"                 .= _addclass
-               , "cornerclass"              .= _cornerclass
-               , "auto_display"             .= _auto_display
-               , "width"                    .= _width
-               , "min_height"               .= _min_height
+--               , "addclass"                 .= _addclass
+--               , "cornerclass"              .= _cornerclass
+--               , "auto_display"             .= _auto_display
+--               , "width"                    .= _width
+--               , "min_height"               .= _min_height
                , "type"                     .= _type
-               , "icon"                     .= _icon
-               , "animation"                .= _animation
-               , "animate_speed"            .= _animate_speed
-               , "position_animate_speed"   .= _position_animate_speed
-               , "opacity"                  .= _opacity
-               , "shadow"                   .= _shadow
-               , "hide"                     .= _hide
-               , "delay"                    .= _delay
-               , "mouse_reset"              .= _mouse_reset
-               , "remove"                   .= _remove
-               , "insert_brs"               .= _insert_brs
+--               , "icon"                     .= _icon
+--               , "animation"                .= _animation
+--               , "animate_speed"            .= _animate_speed
+--               , "position_animate_speed"   .= _position_animate_speed
+--               , "opacity"                  .= _opacity
+--               , "shadow"                   .= _shadow
+--               , "hide"                     .= _hide
+--               , "delay"                    .= _delay
+--               , "mouse_reset"              .= _mouse_reset
+--               , "remove"                   .= _remove
+--               , "insert_brs"               .= _insert_brs
                ]
 
 
 defaultPNotify :: PNotify
 defaultPNotify = PNotify
                  { _title                   = Left False
-                 , _title_escape            = Left False
+--                 , _title_escape            = Left False
                  , _text                    = Left False
-                 , _text_escape             = Left False
+--                 , _text_escape             = Left False
                  , _styling                 = BrightTheme
-                 , _addclass                = T.empty
-                 , _cornerclass             = T.empty
-                 , _auto_display            = True
-                 , _width                   = "300px"
-                 , _min_height              = "16px"
+--                 , _addclass                = T.empty
+--                 , _cornerclass             = T.empty
+--                 , _auto_display            = True
+--                 , _width                   = "300px"
+--                 , _min_height              = "16px"
                  , _type                    = Notice
-                 , _icon                    = Left True
-                 , _animation               = Fade
-                 , _animate_speed           = Slow
-                 , _position_animate_speed  = 500
-                 , _opacity                 = 1.0
-                 , _shadow                  = True
-                 , _hide                    = True
-                 , _delay                   = 8000
-                 , _mouse_reset             = True
-                 , _remove                  = True
-                 , _insert_brs              = True
+--                 , _icon                    = Left True
+--                 , _animation               = Fade
+--                 , _animate_speed           = Slow
+--                 , _position_animate_speed  = 500
+--                 , _opacity                 = 1.0
+--                 , _shadow                  = True
+--                 , _hide                    = True
+--                 , _delay                   = 8000
+--                 , _mouse_reset             = True
+--                 , _remove                  = True
+--                 , _insert_brs              = True
                  }
 
 instance RawJS [PNotify] where

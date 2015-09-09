@@ -71,7 +71,6 @@ postPersonR = do
             , s<-[JqueryUI ..]] setPNotify
       redirect PersonR
     _ -> do
-      
       forM_ [defaultPNotify { _title = Right (mkTitle s t)
                             , _text = Right "Look at my beautiful styling! ^_^"
                             , _styling = s
