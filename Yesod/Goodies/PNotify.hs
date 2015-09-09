@@ -31,8 +31,7 @@ data PNotify = PNotify
                , ttl :: Text
                , msg :: Text
                }
-             deriving (Show, Read, Eq)
-
+             deriving (Show, Read, Eq, Ord)
 instance FromJSON PNotify where
   parseJSON (Object v) = PNotify <$>
                          v .: "styling" <*>
@@ -52,7 +51,7 @@ instance RawJS [PNotify] where
   rawJS = rawJS . TL.decodeUtf8 . encode
 
 data NotifyType = Notice | Info | Success | Error
-                deriving (Eq)
+                deriving (Eq, Ord, Enum)
 
 instance Read NotifyType where
   readsPrec d r = do
@@ -81,7 +80,7 @@ instance ToJSON NotifyType where
   toJSON Error = String "error"
 
 data NotifyStyling = JqueryUI | Bootstrap3 | BrightTheme | FontAwesome
-                   deriving (Eq)
+                   deriving (Eq, Ord, Enum)
 
 instance Read NotifyStyling where
   readsPrec d r = do

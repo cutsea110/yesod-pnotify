@@ -1,7 +1,9 @@
 import Yesod
 import Yesod.Form.Jquery
 import Data.Text (Text)
+import qualified Data.Text as T
 import Control.Applicative ((<$>),(<*>))
+import Control.Monad (forM_)
 
 import Yesod.Goodies.PNotify
 
@@ -60,33 +62,23 @@ postPersonR = do
   ((result, _), _) <- runFormPost personForm
   case result of
     FormSuccess _ -> do
-
-      setPNotify $ PNotify JqueryUI Success "Updated" "Update User profile."
-      setPNotify $ PNotify JqueryUI Notice "Notice" "More notice."
-      setPNotify $ PNotify JqueryUI Info "Information" "And more information."
-      setPNotify $ PNotify JqueryUI Error "Error" "Fail to update user profile"
-      
-      setPNotify $ PNotify Bootstrap3 Success "Updated" "Update User profile."
-      setPNotify $ PNotify Bootstrap3 Notice "Notice" "More notice."
-      setPNotify $ PNotify Bootstrap3 Info "Information" "And more information."
-      setPNotify $ PNotify Bootstrap3 Error "Error" "Fail to update user profile"
-      
-      setPNotify $ PNotify BrightTheme Success "Updated" "Update User profile."
-      setPNotify $ PNotify BrightTheme Notice "Notice" "More notice."
-      setPNotify $ PNotify BrightTheme Info "Information" "And more information."
-      setPNotify $ PNotify BrightTheme Error "Error" "Fail to update user profile"
-
-      setPNotify $ PNotify FontAwesome Success "Updated" "Update User profile."
-      setPNotify $ PNotify FontAwesome Notice "Notice" "More notice."
-      setPNotify $ PNotify FontAwesome Info "Information" "And more information."
-      setPNotify $ PNotify FontAwesome Error "Error" "Fail to update user profile"
+      forM_ [PNotify s t (mkTitle s t) "Look at my beautiful styling! ^_^" |t<-[Notice ..] , s<-[JqueryUI ..]] setPNotify
 
       redirect PersonR
-    _ -> do
-      setPNotify $ PNotify JqueryUI Error "Error" "Fail to update user profile"
-      setPNotify $ PNotify Bootstrap3 Error "Error" "Fail to update user profile"
-      setPNotify $ PNotify BrightTheme Error "Error" "Fail to update user profile"
-      redirect PersonR
+  where
+    fromStyling :: NotifyStyling -> Text
+    fromStyling JqueryUI = "jQuery UI"
+    fromStyling Bootstrap3 = "Bootstrap"
+    fromStyling BrightTheme = "Bright Theme"
+    fromStyling FontAwesome = "Font Awesome"
+
+    fromType Notice = "Notice"
+    fromType Info = "Info"
+    fromType Success = "Success"
+    fromType Error = "Error"
+
+    mkTitle s t = fromStyling s `T.append` " " `T.append` fromType t
+
 
 main :: IO ()
 main = warp 3000 Devel
