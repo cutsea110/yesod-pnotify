@@ -18,11 +18,12 @@ import Data.Aeson (FromJSON(..), ToJSON(..), encode, decode)
 import Data.Aeson.Parser (value)
 import Data.Char (toLower)
 import Data.List (nub)
+import Data.Maybe (fromJust)
 import Data.Monoid ((<>), mempty)
 import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
-import qualified Data.Text.Lazy.Encoding as TL (decodeUtf8)
+import qualified Data.Text.Lazy.Encoding as TL (decodeUtf8, encodeUtf8)
 import Text.Julius (RawJS(..))
 
 data PNotify = PNotify 
@@ -133,10 +134,10 @@ notifyKey :: Text
 notifyKey = "_PNotify"
 
 toText :: [PNotify] -> Text
-toText = T.concat . TL.toChunks . TL.pack . show
+toText = TL.toStrict . TL.decodeUtf8 . encode
 
 fromText :: Text -> [PNotify]
-fromText = read . T.unpack
+fromText = fromJust . decode . TL.encodeUtf8 . TL.fromStrict
 
 _setPNotify :: [PNotify] -> HandlerT site IO ()
 _setPNotify = setSession notifyKey . toText
