@@ -25,6 +25,7 @@ library
                      , TemplateHaskell
                      , MultiParamTypeClasses
                      , TypeFamilies
+                     , FlexibleContexts
 
   build-depends:         base >= 4.6 && < 4.9
                        , yesod >= 1.2 && < 1.5
@@ -41,6 +42,7 @@ executable sample
                      , TemplateHaskell
                      , MultiParamTypeClasses
                      , TypeFamilies
+                     , FlexibleContexts
 
   build-depends:         base >= 4.6 && < 4.9
                        , yesod >= 1.2 && < 1.5
