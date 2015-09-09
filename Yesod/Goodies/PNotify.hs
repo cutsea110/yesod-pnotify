@@ -183,4 +183,4 @@ pnotify y = do
 
       optionalLoadJsCss y ps
 
-      toWidget [julius|$(function(){var ws=#{rawJS ps};for(var i in ws){new PNotify(ws[i]);}});|]
+      toWidget [julius|$(function(){$.each(#{rawJS ps},function(i,v){new PNotify(v)});});|]
