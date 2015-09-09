@@ -30,8 +30,8 @@ instance ToJSON (Either Bool Text)  where
   toJSON (Right t) = String t
 
 instance FromJSON (Either Bool Text) where
-  parseJSON (Bool b) = Right <$> parseJSON (Bool b)
-  parseJSON (String t) = Left <$> parseJSON (String t)
+  parseJSON (Bool b) = Left <$> parseJSON (Bool b)
+  parseJSON (String t) = Right <$> parseJSON (String t)
   parseJSON _ = mzero
 
 data PNotify = PNotify
