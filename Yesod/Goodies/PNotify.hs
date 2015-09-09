@@ -31,7 +31,7 @@ data PNotify = PNotify
 data NotifyType = Notice | Info | Success | Error
                 deriving (Show, Read)
 
-data NotifyStyling = JqueryUI | Bootstrap3 | BrightTheme
+data NotifyStyling = JqueryUI | Bootstrap3 | BrightTheme | FontAwesome
                    deriving (Show, Read)
 
 class YesodJquery a => YesodJqueryPnotify a where
@@ -52,6 +52,9 @@ class YesodJquery a => YesodJqueryPnotify a where
 
   urlBrightThemeCss :: a -> Either (Route a) Text
   urlBrightThemeCss _ = Right "//cdnjs.cloudflare.com/ajax/libs/pnotify/2.1.0/pnotify.brighttheme.min.css"
+
+  urlFontAwesomeCss :: a -> Either (Route a) Text
+  urlFontAwesomeCss _ = Right "//netdna.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css"
 
 notifyKey :: Text
 notifyKey = "_PNotify"
@@ -89,6 +92,7 @@ pnotify y = do
       addStylesheetEither $ urlBootstrap3Css y
       addStylesheetEither $ urlBrightThemeCss y
       addStylesheetEither $ urlJqueryUiCss y
+      addStylesheetEither $ urlFontAwesomeCss y
       let toJs p = [julius|{styling:'#{rawJS $ map toLower $ show $ sty p}'
                            ,title:'#{rawJS $ ttl p}'
                            ,text:'#{rawJS $ msg p}'

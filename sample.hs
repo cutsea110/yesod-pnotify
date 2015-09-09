@@ -59,7 +59,8 @@ postPersonR :: Handler Html
 postPersonR = do
   ((result, _), _) <- runFormPost personForm
   case result of
-    FormSuccess _ -> do 
+    FormSuccess _ -> do
+
       setPNotify $ PNotify JqueryUI Success "Updated" "Update User profile."
       setPNotify $ PNotify JqueryUI Notice "Notice" "More notice."
       setPNotify $ PNotify JqueryUI Info "Information" "And more information."
@@ -74,6 +75,11 @@ postPersonR = do
       setPNotify $ PNotify BrightTheme Notice "Notice" "More notice."
       setPNotify $ PNotify BrightTheme Info "Information" "And more information."
       setPNotify $ PNotify BrightTheme Error "Error" "Fail to update user profile"
+
+      setPNotify $ PNotify FontAwesome Success "Updated" "Update User profile."
+      setPNotify $ PNotify FontAwesome Notice "Notice" "More notice."
+      setPNotify $ PNotify FontAwesome Info "Information" "And more information."
+      setPNotify $ PNotify FontAwesome Error "Error" "Fail to update user profile"
 
       redirect PersonR
     _ -> do
