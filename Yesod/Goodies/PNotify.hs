@@ -26,10 +26,10 @@ import qualified Data.Text.Lazy.Encoding as TL (decodeUtf8, encodeUtf8)
 import Text.Julius (RawJS(..))
 
 data PNotify = PNotify 
-               { sty :: NotifyStyling
-               , typ :: NotifyType
-               , ttl :: Text
-               , msg :: Text
+               { _styling :: NotifyStyling
+               , _type    :: NotifyType
+               , _title   :: Text
+               , _text    :: Text
                }
              deriving (Show, Read, Eq, Ord)
 instance FromJSON PNotify where
@@ -41,11 +41,12 @@ instance FromJSON PNotify where
   parseJSON _ = mzero
 
 instance ToJSON PNotify where
-  toJSON (PNotify sty typ ttl msg) = object ["styling" .= sty
-                                            ,"type" .= typ
-                                            ,"title" .= ttl
-                                            ,"text" .= msg
-                                            ]
+  toJSON (PNotify {_styling, _type, _title, _text})
+      = object ["styling" .= _styling
+               ,"type" .= _type
+               ,"title" .= _title
+               ,"text" .= _text
+               ]
 
 instance RawJS [PNotify] where
   rawJS = rawJS . TL.decodeUtf8 . encode
@@ -156,7 +157,7 @@ setPNotify n = do
 
 optionalLoadJsCss :: (MonadWidget m, YesodJqueryPnotify (HandlerSite m)) =>
                      HandlerSite m -> [PNotify] -> m()
-optionalLoadJsCss y = sequence_ . map trans . nub . map sty
+optionalLoadJsCss y = sequence_ . map trans . nub . map _styling
     where
       trans s = case s of
         JqueryUI
