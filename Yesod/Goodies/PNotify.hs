@@ -1,4 +1,3 @@
-{-# LANGUAGE OverloadedStrings, QuasiQuotes, TemplateHaskell, MultiParamTypeClasses, TypeFamilies #-}
 module Yesod.Goodies.PNotify 
        ( PNotify(..)
        , NotifyType(..)
@@ -30,30 +29,43 @@ data PNotify = PNotify
              deriving (Show, Read)
 
 data NotifyType = Notice | Info | Success | Error
-                deriving (Show, Read)
+                deriving (Read)
+instance Show NotifyType where
+  show Notice = "notice"
+  show Info = "info"
+  show Success = "success"
+  show Error = "error"
 
-data NotifyStyling = JqueryUI | Bootstrap
-                   deriving (Show, Read)
+data NotifyStyling = JqueryUI | Bootstrap3 | BrightTheme
+                   deriving (Read)
+instance Show NotifyStyling where
+  show JqueryUI = "jqueryui"
+  show Bootstrap3 = "bootstrap3"
+  show BrightTheme = "brighttheme"
 
 class YesodJquery a => YesodJqueryPnotify a where
   urlPnotifyJs :: a -> Either (Route a) Text
-  urlPnotifyJs _ = Right "http://cdn.jsdelivr.net/pnotify/1.2/jquery.pnotify.min.js"
+  urlPnotifyJs _ = Right "http://cdn.jsdelivr.net/pnotify/2.1.0/pnotify.all.min.js"
   urlPnotifyCss :: a -> Either (Route a) Text
-  urlPnotifyCss _ = Right "http://cdn.jsdelivr.net/pnotify/1.2/jquery.pnotify.default.css"
-  urlPnotifyIconsCss :: a -> Either (Route a) Text
-  urlPnotifyIconsCss _ = Right "http://cdn.jsdelivr.net/pnotify/1.2/jquery.pnotify.default.icons.css"
+  urlPnotifyCss _ = Right "http://cdn.jsdelivr.net/pnotify/2.1.0/pnotify.all.min.css"
 
 notifyKey :: Text
 notifyKey = "_PNotify"
 
+toText :: [PNotify] -> Text
+toText = T.concat . TL.toChunks . TL.pack . show
+
+fromText :: Text -> [PNotify]
+fromText = read . T.unpack
+
 _setPNotify :: [PNotify] -> HandlerT site IO ()
-_setPNotify = setSession notifyKey . T.concat . TL.toChunks . TL.pack . show
+_setPNotify = setSession notifyKey . toText
 
 getPNotify :: HandlerT site IO (Maybe [PNotify])
 getPNotify = runMaybeT $ do
   ns <- MaybeT $ lookupSession notifyKey
   lift $ deleteSession notifyKey
-  return $ read $ T.unpack ns
+  return $ fromText ns
 
 setPNotify :: PNotify -> HandlerT site IO ()
 setPNotify n = do
@@ -67,11 +79,12 @@ pnotify y = do
     Nothing -> return ()
     Just ps -> do
       addScriptEither $ urlJqueryJs y
-      addScriptEither $ urlJqueryUiJs y
-      addStylesheetEither $ urlJqueryUiCss y
       addScriptEither $ urlPnotifyJs y
       addStylesheetEither $ urlPnotifyCss y
-      addStylesheetEither $ urlPnotifyIconsCss y
-      let toJs p = [julius|{styling:'#{rawJS $ map toLower $ show $ sty p}',title:'#{rawJS $ ttl p}',text:'#{rawJS $ msg p}',type:'#{rawJS $ map toLower $ show $ typ p}'},|]
+      let toJs p = [julius|{styling:'#{rawJS $ show $ sty p}'
+                           ,title:'#{rawJS $ ttl p}'
+                           ,text:'#{rawJS $ msg p}'
+                           ,type:'#{rawJS $ show $ typ p}'
+                           },|]
           ws = foldr ((<>).toJs) mempty ps
-      toWidget [julius|$(document).ready(function(e){var ws=[^{ws}];for(var i in ws){$.pnotify(ws[i]);}});|]
+      toWidget [julius|$(function(){var ws=[^{ws}];for(var i in ws){new Pnotify(ws[i]);}});|]
