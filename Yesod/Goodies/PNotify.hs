@@ -18,7 +18,6 @@ import Data.Aeson (FromJSON(..), ToJSON(..), encode, decode)
 import Data.Aeson.Parser (value)
 import Data.Char (toLower)
 import Data.List (nub)
-import Data.Maybe (fromJust)
 import Data.Monoid ((<>), mempty)
 import Data.Text (Text)
 import qualified Data.Text as T
@@ -73,6 +72,7 @@ instance Show NotifyType where
 
 instance FromJSON NotifyType where
   parseJSON (String v) = return $ read $ T.unpack v
+  parseJSON _ = mzero
 
 instance ToJSON NotifyType where
   toJSON Notice = String "notice"
@@ -101,6 +101,7 @@ instance Show NotifyStyling where
 
 instance FromJSON NotifyStyling where
   parseJSON (String v) = return $ read $ T.unpack v
+  parseJSON _ = mzero
 
 instance ToJSON NotifyStyling where
   toJSON JqueryUI = String "jqueryui"
@@ -137,7 +138,7 @@ toText :: [PNotify] -> Text
 toText = TL.toStrict . TL.decodeUtf8 . encode
 
 fromText :: Text -> [PNotify]
-fromText = fromJust . decode . TL.encodeUtf8 . TL.fromStrict
+fromText = maybe [] id . decode . TL.encodeUtf8 . TL.fromStrict
 
 _setPNotify :: [PNotify] -> HandlerT site IO ()
 _setPNotify = setSession notifyKey . toText
