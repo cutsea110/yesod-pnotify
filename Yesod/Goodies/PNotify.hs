@@ -12,13 +12,17 @@ module Yesod.Goodies.PNotify
 import Yesod
 import Yesod.Form.Jquery hiding (urlJqueryJs, urlJqueryUiCss)
 
+import Control.Monad (mzero)
 import Control.Monad.Trans.Maybe
+import Data.Aeson (FromJSON(..), ToJSON(..), encode, decode)
+import Data.Aeson.Parser (value)
 import Data.Char (toLower)
 import Data.List (nub)
 import Data.Monoid ((<>), mempty)
 import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
+import qualified Data.Text.Lazy.Encoding as TL (decodeUtf8)
 import Text.Julius (RawJS(..))
 
 data PNotify = PNotify 
@@ -29,11 +33,79 @@ data PNotify = PNotify
                }
              deriving (Show, Read, Eq)
 
+instance FromJSON PNotify where
+  parseJSON (Object v) = PNotify <$>
+                         v .: "styling" <*>
+                         v .: "type" <*>
+                         v .: "title" <*>
+                         v .: "text"
+  parseJSON _ = mzero
+
+instance ToJSON PNotify where
+  toJSON (PNotify sty typ ttl msg) = object ["styling" .= sty
+                                            ,"type" .= typ
+                                            ,"title" .= ttl
+                                            ,"text" .= msg
+                                            ]
+
+instance RawJS [PNotify] where
+  rawJS = rawJS . TL.decodeUtf8 . encode
+
 data NotifyType = Notice | Info | Success | Error
-                deriving (Show, Read, Eq)
+                deriving (Eq)
+
+instance Read NotifyType where
+  readsPrec d r = do
+    (v, s') <- lex r
+    return $ case v of
+      "notice" -> (Notice, s')
+      "info" -> (Info, s')
+      "success" -> (Success, s')
+      "error" -> (Error, s')
+      _ -> error $ "invalid NotifyType: " ++ v
+
+instance Show NotifyType where
+  show Notice = "notice"
+  show Info = "info"
+  show Success = "success"
+  show Error = "error"
+
+instance FromJSON NotifyType where
+  parseJSON (String v) = return $ read $ T.unpack v
+
+instance ToJSON NotifyType where
+  toJSON Notice = String "notice"
+  toJSON Info = String "info"
+  toJSON Success = String "success"
+  toJSON Error = String "error"
 
 data NotifyStyling = JqueryUI | Bootstrap3 | BrightTheme | FontAwesome
-                   deriving (Show, Read, Eq)
+                   deriving (Eq)
+
+instance Read NotifyStyling where
+  readsPrec d r = do
+    (v, s') <- lex r
+    return $ case v of
+      "jqueryui" -> (JqueryUI, s')
+      "bootstrap3" -> (Bootstrap3, s')
+      "brighttheme" -> (BrightTheme, s')
+      "fontawesome" -> (FontAwesome, s')
+      _ -> error $ "invalid NotifyStyling: " ++ v
+
+instance Show NotifyStyling where
+  show JqueryUI = "jqueryui"
+  show Bootstrap3 = "bootstrap3"
+  show BrightTheme = "brighttheme"
+  show FontAwesome = "fontawesome"
+
+instance FromJSON NotifyStyling where
+  parseJSON (String v) = return $ read $ T.unpack v
+
+instance ToJSON NotifyStyling where
+  toJSON JqueryUI = String "jqueryui"
+  toJSON Bootstrap3 = String "bootstrap3"
+  toJSON BrightTheme = String "brighttheme"
+  toJSON FontAwesome = String "fontawesome"
 
 class YesodJquery a => YesodJqueryPnotify a where
   urlJqueryJs :: a -> Either (Route a) Text
@@ -109,12 +181,4 @@ pnotify y = do
 
       optionalLoadJsCss y ps
 
-      let toJs p = [julius|{styling:'#{rawJS $ map toLower $ show $ sty p}'
-                           ,title:'#{rawJS $ ttl p}'
-                           ,text:'#{rawJS $ msg p}'
-                           ,type:'#{rawJS $ map toLower $ show $ typ p}'
-                           },|]
-          ws = foldr ((<>).toJs) mempty ps
-      toWidget [julius|$(function(){var ws=[^{ws}];for(var i in ws){new PNotify(ws[i]);}});|]
-    where
-      when b f = if b then f else return ()
+      toWidget [julius|$(function(){var ws=#{rawJS ps};for(var i in ws){new PNotify(ws[i]);}});|]
