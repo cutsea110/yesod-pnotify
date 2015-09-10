@@ -1,12 +1,13 @@
 module Yesod.Goodies.PNotify 
-       ( PNotify(..)
-       , NotifyType(..)
-       , NotifyStyling(..)
+       ( module Yesod.Goodies.PNotify.Types
+       , module Yesod.Goodies.PNotify.Types.Instances
+       , PNotify(..)
        , YesodJqueryPnotify(..)
        , getPNotify
        , setPNotify
          -- Utility
        , pnotify
+       , defaultPNotify
        ) where
 
 import Yesod
@@ -15,98 +16,144 @@ import Yesod.Form.Jquery hiding (urlJqueryJs, urlJqueryUiCss)
 import Control.Monad (mzero)
 import Control.Monad.Trans.Maybe
 import Data.Aeson (FromJSON(..), ToJSON(..), encode, decode)
-import Data.Aeson.Parser (value)
-import Data.Char (toLower)
 import Data.List (nub)
-import Data.Monoid ((<>), mempty)
 import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.Encoding as TL (decodeUtf8, encodeUtf8)
 import Text.Julius (RawJS(..))
 
-data PNotify = PNotify 
-               { sty :: NotifyStyling
-               , typ :: NotifyType
-               , ttl :: Text
-               , msg :: Text
+import Yesod.Goodies.PNotify.Types
+import Yesod.Goodies.PNotify.Types.Instances
+
+data PNotify = PNotify
+               { _title                    :: Either Bool Text
+               , _title_escape             :: Either Bool Text
+               , _text                     :: Either Bool Text
+               , _text_escape              :: Either Bool Text
+               , _styling                  :: NotifyStyling
+               , _addclass                 :: Text
+               , _cornerclass              :: Text
+               , _auto_display             :: Bool
+               , _width                    :: Text
+               , _min_height               :: Text
+               , _type                     :: NotifyType
+               , _icon                     :: Either Bool Text
+               , _animation                :: AnimationType
+               , _animate_speed            ::AnimateSpeed
+               , _position_animate_speed   :: Int
+               , _opacity                  :: Double
+               , _shadow                   :: Bool
+               , _hide                     :: Bool
+               , _delay                    :: Int
+               , _mouse_reset              :: Bool
+               , _remove                   :: Bool
+               , _insert_brs               :: Bool
                }
              deriving (Show, Read, Eq, Ord)
 instance FromJSON PNotify where
   parseJSON (Object v) = PNotify <$>
-                         v .: "styling" <*>
-                         v .: "type" <*>
                          v .: "title" <*>
-                         v .: "text"
+                         v .: "title_escape" <*>
+                         v .: "text" <*>
+                         v .: "text_escape" <*>
+                         v .: "styling" <*>
+                         v .: "addclass" <*>
+                         v .: "cornerclass" <*>
+                         v .: "auto_display" <*>
+                         v .: "width" <*>
+                         v .: "min_height" <*>
+                         v .: "type" <*>
+                         v .: "icon" <*>
+                         v .: "animation" <*>
+                         v .: "animate_speed" <*>
+                         v .: "position_animate_speed" <*>
+                         v .: "opacity" <*>
+                         v .: "shadow" <*>
+                         v .: "hide" <*>
+                         v .: "delay" <*>
+                         v .: "mouse_reset" <*>
+                         v .: "remove" <*>
+                         v .: "insert_brs"
   parseJSON _ = mzero
 
 instance ToJSON PNotify where
-  toJSON (PNotify sty typ ttl msg) = object ["styling" .= sty
-                                            ,"type" .= typ
-                                            ,"title" .= ttl
-                                            ,"text" .= msg
-                                            ]
+  toJSON (PNotify { _title
+                  , _title_escape
+                  , _text
+                  , _text_escape
+                  , _styling
+                  , _addclass
+                  , _cornerclass
+                  , _auto_display
+                  , _width
+                  , _min_height
+                  , _type
+                  , _icon
+                  , _animation
+                  , _animate_speed
+                  , _position_animate_speed
+                  , _opacity
+                  , _shadow
+                  , _hide
+                  , _delay
+                  , _mouse_reset
+                  , _remove
+                  , _insert_brs
+                  })
+      = object [ "title"                    .= _title
+               , "title_escape"             .= _title_escape
+               , "text"                     .= _text
+               , "text_escape"              .= _text_escape
+               , "styling"                  .= _styling
+               , "addclass"                 .= _addclass
+               , "cornerclass"              .= _cornerclass
+               , "auto_display"             .= _auto_display
+               , "width"                    .= _width
+               , "min_height"               .= _min_height
+               , "type"                     .= _type
+               , "icon"                     .= _icon
+               , "animation"                .= _animation
+               , "animate_speed"            .= _animate_speed
+               , "position_animate_speed"   .= _position_animate_speed
+               , "opacity"                  .= _opacity
+               , "shadow"                   .= _shadow
+               , "hide"                     .= _hide
+               , "delay"                    .= _delay
+               , "mouse_reset"              .= _mouse_reset
+               , "remove"                   .= _remove
+               , "insert_brs"               .= _insert_brs
+               ]
+
+
+defaultPNotify :: PNotify
+defaultPNotify = PNotify
+                 { _title                   = Left False
+                 , _title_escape            = Left False
+                 , _text                    = Left False
+                 , _text_escape             = Left False
+                 , _styling                 = BrightTheme
+                 , _addclass                = T.empty
+                 , _cornerclass             = T.empty
+                 , _auto_display            = True
+                 , _width                   = "300px"
+                 , _min_height              = "16px"
+                 , _type                    = Notice
+                 , _icon                    = Left True
+                 , _animation               = Fade
+                 , _animate_speed           = Slow
+                 , _position_animate_speed  = 500
+                 , _opacity                 = 1.0
+                 , _shadow                  = True
+                 , _hide                    = True
+                 , _delay                   = 8000
+                 , _mouse_reset             = True
+                 , _remove                  = True
+                 , _insert_brs              = True
+                 }
 
 instance RawJS [PNotify] where
   rawJS = rawJS . TL.decodeUtf8 . encode
-
-data NotifyType = Notice | Info | Success | Error
-                deriving (Eq, Ord, Enum)
-
-instance Read NotifyType where
-  readsPrec d r = do
-    (v, s') <- lex r
-    return $ case v of
-      "notice" -> (Notice, s')
-      "info" -> (Info, s')
-      "success" -> (Success, s')
-      "error" -> (Error, s')
-      _ -> error $ "invalid NotifyType: " ++ v
-
-instance Show NotifyType where
-  show Notice = "notice"
-  show Info = "info"
-  show Success = "success"
-  show Error = "error"
-
-instance FromJSON NotifyType where
-  parseJSON (String v) = return $ read $ T.unpack v
-  parseJSON _ = mzero
-
-instance ToJSON NotifyType where
-  toJSON Notice = String "notice"
-  toJSON Info = String "info"
-  toJSON Success = String "success"
-  toJSON Error = String "error"
-
-data NotifyStyling = JqueryUI | Bootstrap3 | BrightTheme | FontAwesome
-                   deriving (Eq, Ord, Enum)
-
-instance Read NotifyStyling where
-  readsPrec d r = do
-    (v, s') <- lex r
-    return $ case v of
-      "jqueryui" -> (JqueryUI, s')
-      "bootstrap3" -> (Bootstrap3, s')
-      "brighttheme" -> (BrightTheme, s')
-      "fontawesome" -> (FontAwesome, s')
-      _ -> error $ "invalid NotifyStyling: " ++ v
-
-instance Show NotifyStyling where
-  show JqueryUI = "jqueryui"
-  show Bootstrap3 = "bootstrap3"
-  show BrightTheme = "brighttheme"
-  show FontAwesome = "fontawesome"
-
-instance FromJSON NotifyStyling where
-  parseJSON (String v) = return $ read $ T.unpack v
-  parseJSON _ = mzero
-
-instance ToJSON NotifyStyling where
-  toJSON JqueryUI = String "jqueryui"
-  toJSON Bootstrap3 = String "bootstrap3"
-  toJSON BrightTheme = String "brighttheme"
-  toJSON FontAwesome = String "fontawesome"
 
 class YesodJquery a => YesodJqueryPnotify a where
   urlJqueryJs :: a -> Either (Route a) Text
@@ -156,7 +203,7 @@ setPNotify n = do
 
 optionalLoadJsCss :: (MonadWidget m, YesodJqueryPnotify (HandlerSite m)) =>
                      HandlerSite m -> [PNotify] -> m()
-optionalLoadJsCss y = sequence_ . map trans . nub . map sty
+optionalLoadJsCss y = sequence_ . map trans . nub . map _styling
     where
       trans s = case s of
         JqueryUI

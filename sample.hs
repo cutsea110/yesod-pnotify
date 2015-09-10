@@ -62,8 +62,33 @@ postPersonR = do
   ((result, _), _) <- runFormPost personForm
   case result of
     FormSuccess _ -> do
-      forM_ [PNotify s t (mkTitle s t) "Look at my beautiful styling! ^_^" |t<-[Notice ..] , s<-[JqueryUI ..]] setPNotify
-
+      setPNotify defaultPNotify { _title = Right (mkTitle JqueryUI Notice)
+                                , _text = Right "Look at my beautiful styling! ^_^"
+                                , _styling = JqueryUI
+                                , _type = Notice
+                                }
+      setPNotify defaultPNotify { _title = Right (mkTitle Bootstrap3 Success)
+                                , _text = Right "Look at my beautiful styling! ^_^"
+                                , _styling = Bootstrap3
+                                , _type = Success
+                                }
+      setPNotify defaultPNotify { _title = Right (mkTitle BrightTheme Error)
+                                , _text = Right "Look at my beautiful styling! ^_^"
+                                , _styling = BrightTheme
+                                , _type = Error
+                                }
+      setPNotify defaultPNotify { _title = Right (mkTitle FontAwesome Info)
+                                , _text = Right "Look at my beautiful styling! ^_^"
+                                , _styling = FontAwesome
+                                , _type = Info
+                                }
+      redirect PersonR
+    _ -> do
+      setPNotify defaultPNotify { _title = Right (mkTitle JqueryUI Notice)
+                                , _text = Right "Look at my beautiful styling! ^_^"
+                                , _styling = JqueryUI
+                                , _type = Notice
+                                }
       redirect PersonR
   where
     fromStyling :: NotifyStyling -> Text

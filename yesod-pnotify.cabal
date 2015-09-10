@@ -2,7 +2,7 @@
 -- documentation, see http://haskell.org/cabal/users-guide/
 
 name:                yesod-pnotify
-version:             1.0.2
+version:             1.0.3
 synopsis:            Yet another getMessage/setMessage using pnotify jquery plugins
 description:         Yet another getMessage/setMessage using pnotify jquery plugins
 homepage:            https://github.com/cutsea110/yesod-pnotify
@@ -28,6 +28,7 @@ library
                      , FlexibleContexts
                      , FlexibleInstances
                      , DeriveGeneric
+                     , NamedFieldPuns
 
   build-depends:         base >= 4.6 && < 4.9
                        , yesod >= 1.2 && < 1.5
@@ -48,6 +49,7 @@ executable sample
                      , FlexibleContexts
                      , FlexibleInstances
                      , DeriveGeneric
+                     , NamedFieldPuns
 
   build-depends:         base >= 4.6 && < 4.9
                        , yesod >= 1.2 && < 1.5
