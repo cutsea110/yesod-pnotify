@@ -1,3 +1,6 @@
+import Prelude hiding (Either(..))
+import qualified Prelude as Prelude (Either(..))
+
 import Yesod
 import Yesod.Form.Jquery
 import Data.Text (Text)
@@ -62,8 +65,8 @@ postPersonR = do
   ((result, _), _) <- runFormPost personForm
   case result of
     FormSuccess _ -> do
-      forM_ [defaultPNotify { _title = Just $ Right $ mkTitle s t
-                            , _text = Just $ Right "Look at my beautiful styling! ^_^"
+      forM_ [defaultPNotify { _title = Just $ Prelude.Right $ mkTitle s t
+                            , _text = Just $ Prelude.Right "Look at my beautiful styling! ^_^"
                             , _styling = Just s
                             , _type = Just t
                             }
@@ -71,8 +74,8 @@ postPersonR = do
             , s <- [JqueryUI ..]] setPNotify
       redirect PersonR
     _ -> do
-      forM_ [defaultPNotify { _title = Just $ Right $ mkTitle s Error
-                            , _text = Just $ Right "Look at my beautiful styling! ^_^"
+      forM_ [defaultPNotify { _title = Just $ Prelude.Right $ mkTitle s Error
+                            , _text = Just $ Prelude.Right "Look at my beautiful styling! ^_^"
                             , _styling = Just s
                             , _type = Just Error
                             }
