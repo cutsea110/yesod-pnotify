@@ -1,24 +1,24 @@
 import Prelude hiding (Either(..))
 import qualified Prelude as Prelude (Either(..))
 
-import Yesod
-import Yesod.Form.Jquery
-import Data.Text (Text)
-import qualified Data.Text as T
 import Control.Applicative ((<$>),(<*>))
 import Control.Monad (forM_)
+import Data.Text (Text)
+import qualified Data.Text as T
 
+import Yesod
+import Yesod.Form.Jquery
 import Yesod.Goodies.PNotify
 
-data Devel = Devel
+data Demo = Demo
 
-mkYesod "Devel" [parseRoutes|
-/ PersonR GET POST
+mkYesod "Demo" [parseRoutes|
+/ HomeR GET POST
 |]
 
 
 
-instance Yesod Devel where
+instance Yesod Demo where
   defaultLayout widget = do
     y <- getYesod
     pc <- widgetToPageContent $ do
@@ -36,10 +36,10 @@ $doctype 5
         ^{pageBody pc}
 |]
 
-instance YesodJquery Devel
-instance YesodJqueryPnotify Devel where
+instance YesodJquery Demo
+instance YesodJqueryPnotify Demo
 
-instance RenderMessage Devel FormMessage where
+instance RenderMessage Demo FormMessage where
   renderMessage _ _ = defaultFormMessage
 
 data Person = Person { name :: Text
@@ -51,17 +51,17 @@ personForm = renderDivs $ Person
              <$> areq textField "Name" Nothing
              <*> areq intField "Age" Nothing
 
-getPersonR :: Handler Html
-getPersonR = do
+getHomeR :: Handler Html
+getHomeR = do
   (widget, enctype) <- generateFormPost personForm
   defaultLayout [whamlet|
-<form method=post action=@{PersonR} enctype=#{enctype}>
+<form method=post action=@{HomeR} enctype=#{enctype}>
   ^{widget}
   <input type=submit>
 |]
 
-postPersonR :: Handler Html
-postPersonR = do
+postHomeR :: Handler Html
+postHomeR = do
   ((result, _), _) <- runFormPost personForm
   case result of
     FormSuccess _ -> do
@@ -72,7 +72,7 @@ postPersonR = do
                             }
             | t <- [Notice ..]
             , s <- [JqueryUI ..]] setPNotify
-      redirect PersonR
+      redirect HomeR
     _ -> do
       forM_ [defaultPNotify { _title = Just $ Prelude.Right $ mkTitle s Error
                             , _text = Just $ Prelude.Right "Look at my beautiful styling! ^_^"
@@ -81,7 +81,7 @@ postPersonR = do
                             }
             | s <- [JqueryUI ..]] setPNotify
 
-      redirect PersonR
+      redirect HomeR
   where
     fromStyling :: NotifyStyling -> Text
     fromStyling JqueryUI = "jQuery UI"
@@ -98,4 +98,4 @@ postPersonR = do
 
 
 main :: IO ()
-main = warp 3000 Devel
+main = warp 3000 Demo
