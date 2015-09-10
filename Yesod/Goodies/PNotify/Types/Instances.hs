@@ -1,18 +1,20 @@
 module Yesod.Goodies.PNotify.Types.Instances where
 
+import Prelude hiding (Either(..))
+import qualified Prelude as Prelude (Either(..))
 import Control.Monad (mzero)
 import Data.Aeson hiding (Result(..))
 import Data.Text (Text)
 import qualified Data.Text as T
 import Yesod.Goodies.PNotify.Types
 
-instance ToJSON (Either Bool Text)  where
-  toJSON (Left b) = Bool b
-  toJSON (Right t) = String t
+instance ToJSON (Prelude.Either Bool Text)  where
+  toJSON (Prelude.Left b) = Bool b
+  toJSON (Prelude.Right t) = String t
 
-instance FromJSON (Either Bool Text) where
-  parseJSON (Bool b) = Left <$> parseJSON (Bool b)
-  parseJSON (String t) = Right <$> parseJSON (String t)
+instance FromJSON (Prelude.Either Bool Text) where
+  parseJSON (Bool b) = Prelude.Left <$> parseJSON (Bool b)
+  parseJSON (String t) = Prelude.Right <$> parseJSON (String t)
   parseJSON _ = mzero
 
 instance Read NotifyType where
@@ -115,3 +117,49 @@ instance ToJSON AnimateSpeed where
   toJSON Def = String "def"
   toJSON Normal = String "normal"
   toJSON Fast = String "fast"
+
+instance Read Dir where
+  readsPrec d r = do
+    (v, s') <- lex r
+    return $ case v of
+      "up" -> (Up, s')
+      "down" -> (Down, s')
+      "right" -> (Right, s')
+      "left" -> (Left, s')
+      _ -> error $ "invalid Dir " ++ v
+
+instance Show Dir where
+  show Up = "up"
+  show Down = "down"
+  show Right = "right"
+  show Left = "left"
+
+instance FromJSON Dir where
+  parseJSON (String v) = return $ read $ T.unpack v
+  parseJSON _ = mzero
+
+instance ToJSON Dir where
+  toJSON Up = String "up"
+  toJSON Down = String "down"
+  toJSON Right = String "right"
+  toJSON Left = String "left"
+
+instance Read Push where
+  readsPrec d r = do
+    (v, s') <- lex r
+    return $ case v of
+      "top" -> (Top, s')
+      "bottom" -> (Bottom, s')
+      _ -> error $ "invalid Push " ++ v
+
+instance Show Push where
+  show Top = "top"
+  show Bottom = "bottom"
+
+instance FromJSON Push where
+  parseJSON (String v) = return $ read $ T.unpack v
+  parseJSON _ = mzero
+
+instance ToJSON Push where
+  toJSON Top = String "top"
+  toJSON Bottom = String "bottom"

@@ -1,21 +1,22 @@
-import Yesod
-import Yesod.Form.Jquery
-import Data.Text (Text)
-import qualified Data.Text as T
+import Prelude hiding (Either(..))
+import qualified Prelude as Prelude (Either(..))
+
 import Control.Applicative ((<$>),(<*>))
 import Control.Monad (forM_)
+import Data.Text (Text)
+import qualified Data.Text as T
 
+import Yesod
+import Yesod.Form.Jquery
 import Yesod.Goodies.PNotify
 
-data Devel = Devel
+data Demo = Demo
 
-mkYesod "Devel" [parseRoutes|
-/ PersonR GET POST
+mkYesod "Demo" [parseRoutes|
+/ HomeR GET POST
 |]
 
-
-
-instance Yesod Devel where
+instance Yesod Demo where
   defaultLayout widget = do
     y <- getYesod
     pc <- widgetToPageContent $ do
@@ -33,52 +34,32 @@ $doctype 5
         ^{pageBody pc}
 |]
 
-instance YesodJquery Devel
-instance YesodJqueryPnotify Devel where
+instance YesodJquery Demo
+instance YesodJqueryPnotify Demo
 
-instance RenderMessage Devel FormMessage where
-  renderMessage _ _ = defaultFormMessage
-
-data Person = Person { name :: Text
-                     , age :: Int
-                     }
-              deriving (Show)
-personForm :: Html -> MForm Handler (FormResult Person, Widget)
-personForm = renderDivs $ Person
-             <$> areq textField "Name" Nothing
-             <*> areq intField "Age" Nothing
-
-getPersonR :: Handler Html
-getPersonR = do
-  (widget, enctype) <- generateFormPost personForm
-  defaultLayout [whamlet|
-<form method=post action=@{PersonR} enctype=#{enctype}>
-  ^{widget}
-  <input type=submit>
+getHomeR :: Handler Html
+getHomeR = do
+  x <- newIdent
+  defaultLayout $ do
+    setTitle "PNotify sample"
+    [whamlet|
+<h1>This is a sample</h1>
+<form method=post action=@{HomeR}>
+  <label for=#{x}>PNotify</label>
+  <input id=#{x} type=submit value="Click Me!">
 |]
 
-postPersonR :: Handler Html
-postPersonR = do
-  ((result, _), _) <- runFormPost personForm
-  case result of
-    FormSuccess _ -> do
-      forM_ [defaultPNotify { _title = Just $ Right $ mkTitle s t
-                            , _text = Just $ Right "Look at my beautiful styling! ^_^"
-                            , _styling = Just s
-                            , _type = Just t
-                            }
-            | t <- [Notice ..]
-            , s <- [JqueryUI ..]] setPNotify
-      redirect PersonR
-    _ -> do
-      forM_ [defaultPNotify { _title = Just $ Right $ mkTitle s Error
-                            , _text = Just $ Right "Look at my beautiful styling! ^_^"
-                            , _styling = Just s
-                            , _type = Just Error
-                            }
-            | s <- [JqueryUI ..]] setPNotify
-
-      redirect PersonR
+postHomeR :: Handler Html
+postHomeR = do
+  forM_ [defaultPNotify { _title = Just $ Prelude.Right $ mkTitle s t
+                        , _text = Just $ Prelude.Right "Look at my beautiful styling! ^_^"
+                        , _styling = Just s
+                        , _type = Just t
+                        }
+        | t <- [Notice ..]
+        , s <- [JqueryUI ..]
+        ] setPNotify
+  redirect HomeR
   where
     fromStyling :: NotifyStyling -> Text
     fromStyling JqueryUI = "jQuery UI"
@@ -95,4 +76,4 @@ postPersonR = do
 
 
 main :: IO ()
-main = warp 3000 Devel
+main = warp 3000 Demo

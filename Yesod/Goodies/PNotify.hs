@@ -10,6 +10,9 @@ module Yesod.Goodies.PNotify
        , defaultPNotify
        ) where
 
+import Prelude hiding (Either(..))
+import qualified Prelude as Prelude (Either(..))
+
 import Yesod
 import Yesod.Form.Jquery hiding (urlJqueryJs, urlJqueryUiCss)
 
@@ -24,22 +27,72 @@ import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.Encoding as TL (decodeUtf8, encodeUtf8)
 import Text.Julius (RawJS(..))
 
-import Yesod.Goodies.PNotify.Types
+import Yesod.Goodies.PNotify.Types hiding (_animation)
 import Yesod.Goodies.PNotify.Types.Instances
 
+data Stack = Stack { _addpos2    :: Maybe Int
+                   , _animation' :: Maybe Bool
+                   , _dir1       :: Maybe Dir
+                   , _dir2       :: Maybe Dir
+                   , _firstpos1  :: Maybe Int
+                   , _firstpos2  :: Maybe Int
+                   , _push       :: Maybe Push
+                   , _spacing1   :: Maybe Int
+                   , _spacing2   :: Maybe Int
+                   , _context    :: Maybe Text
+                   }
+           deriving (Read, Show, Eq, Ord)
+
+instance FromJSON Stack where
+  parseJSON (Object v) = Stack <$>
+                         v .:? "addpos2" <*>
+                         v .:? "animation" <*>
+                         v .:? "dir1" <*>
+                         v .:? "dir2" <*>
+                         v .:? "firstpos1" <*>
+                         v .:? "firstpos2" <*>
+                         v .:? "push" <*>
+                         v .:? "spacing1" <*>
+                         v .:? "spacing2" <*>
+                         v .:? "context"
+
+instance ToJSON Stack where
+  toJSON (Stack { _addpos2
+                , _animation'
+                , _dir1
+                , _dir2
+                , _firstpos1
+                , _firstpos2
+                , _push
+                , _spacing1
+                , _spacing2
+                , _context
+                })
+      = object $ maybe [] (\x -> ["addpos2" .= x]) _addpos2 ++
+                 maybe [] (\x -> ["animation" .= x]) _animation' ++
+                 maybe [] (\x -> ["dir1" .= x]) _dir1 ++
+                 maybe [] (\x -> ["dir2" .= x]) _dir2 ++
+                 maybe [] (\x -> ["firstpos1" .= x]) _firstpos1 ++
+                 maybe [] (\x -> ["firstpos2" .= x]) _firstpos2 ++
+                 maybe [] (\x -> ["push" .= x]) _push ++
+                 maybe [] (\x -> ["spacing1" .= x]) _spacing1 ++
+                 maybe [] (\x -> ["spacing2" .= x]) _spacing2 ++
+                 maybe [] (\x -> ["context" .= x]) _context ++
+                 []
+
 data PNotify = PNotify
-               { _title                    :: Maybe (Either Bool Text)
-               , _title_escape             :: Maybe (Either Bool Text)
-               , _text                     :: Maybe (Either Bool Text)
-               , _text_escape              :: Maybe (Either Bool Text)
-               , _styling                  :: Maybe (NotifyStyling)
+               { _title                    :: Maybe (Prelude.Either Bool Text)
+               , _title_escape             :: Maybe (Prelude.Either Bool Text)
+               , _text                     :: Maybe (Prelude.Either Bool Text)
+               , _text_escape              :: Maybe (Prelude.Either Bool Text)
+               , _styling                  :: Maybe NotifyStyling
                , _addclass                 :: Maybe Text
                , _cornerclass              :: Maybe Text
                , _auto_display             :: Maybe Bool
                , _width                    :: Maybe Text
                , _min_height               :: Maybe Text
                , _type                     :: Maybe NotifyType
-               , _icon                     :: Maybe (Either Bool Text)
+               , _icon                     :: Maybe (Prelude.Either Bool Text)
                , _animation                :: Maybe AnimationType
                , _animate_speed            :: Maybe AnimateSpeed
                , _position_animate_speed   :: Maybe Int
@@ -50,8 +103,10 @@ data PNotify = PNotify
                , _mouse_reset              :: Maybe Bool
                , _remove                   :: Maybe Bool
                , _insert_brs               :: Maybe Bool
+               , _stack                    :: Maybe Stack
                }
              deriving (Show, Read, Eq, Ord)
+
 instance FromJSON PNotify where
   parseJSON (Object v) = PNotify <$>
                          v .:? "title" <*>
@@ -75,7 +130,8 @@ instance FromJSON PNotify where
                          v .:? "delay" <*>
                          v .:? "mouse_reset" <*>
                          v .:? "remove" <*>
-                         v .:? "insert_brs"
+                         v .:? "insert_brs" <*>
+                         v .:? "stack"
   parseJSON _ = mzero
 
 instance ToJSON PNotify where
@@ -101,6 +157,7 @@ instance ToJSON PNotify where
                   , _mouse_reset
                   , _remove
                   , _insert_brs
+                  , _stack
                   })
       = object $ maybe [] (\x -> ["title" .= x]) _title ++
                  maybe [] (\x -> ["title_escape" .= x]) _title_escape ++
@@ -124,6 +181,7 @@ instance ToJSON PNotify where
                  maybe [] (\x -> ["mouse_reset" .= x]) _mouse_reset ++
                  maybe [] (\x -> ["remove" .= x]) _remove ++
                  maybe [] (\x -> ["insert_brs" .= x]) _insert_brs ++
+                 maybe [] (\x -> ["stack" .= x]) _stack ++
                  []
 
 defaultPNotify :: PNotify
@@ -150,32 +208,47 @@ defaultPNotify = PNotify
                  , _mouse_reset             = Nothing
                  , _remove                  = Nothing
                  , _insert_brs              = Nothing
+                 , _stack                   = Nothing
                  }
+
+defaultStack :: Stack
+defaultStack = Stack
+               { _addpos2     = Nothing
+               , _animation'  = Nothing
+               , _dir1        = Nothing
+               , _dir2        = Nothing
+               , _firstpos1   = Nothing
+               , _firstpos2   = Nothing
+               , _push        = Nothing
+               , _spacing1    = Nothing
+               , _spacing2    = Nothing
+               , _context     = Nothing
+               }
 
 instance RawJS [PNotify] where
   rawJS = rawJS . TL.decodeUtf8 . encode
 
 class YesodJquery a => YesodJqueryPnotify a where
-  urlJqueryJs :: a -> Either (Route a) Text
-  urlJqueryJs _ = Right "//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"
-  urlJqueryUiCss :: a -> Either (Route a) Text
-  urlJqueryUiCss _ = Right "//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css"
+  urlJqueryJs :: a -> Prelude.Either (Route a) Text
+  urlJqueryJs _ = Prelude.Right "//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"
+  urlJqueryUiCss :: a -> Prelude.Either (Route a) Text
+  urlJqueryUiCss _ = Prelude.Right "//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css"
   
-  urlPnotifyJs :: a -> Either (Route a) Text
-  urlPnotifyJs _ = Right "//cdnjs.cloudflare.com/ajax/libs/pnotify/2.1.0/pnotify.core.min.js"
-  urlPnotifyCss :: a -> Either (Route a) Text
-  urlPnotifyCss _ = Right "//cdnjs.cloudflare.com/ajax/libs/pnotify/2.1.0/pnotify.core.min.css"
+  urlPnotifyJs :: a -> Prelude.Either (Route a) Text
+  urlPnotifyJs _ = Prelude.Right "//cdnjs.cloudflare.com/ajax/libs/pnotify/2.1.0/pnotify.core.min.js"
+  urlPnotifyCss :: a -> Prelude.Either (Route a) Text
+  urlPnotifyCss _ = Prelude.Right "//cdnjs.cloudflare.com/ajax/libs/pnotify/2.1.0/pnotify.core.min.css"
 
-  urlBootstrap3Js :: a -> Either (Route a) Text
-  urlBootstrap3Js _ = Right "//netdna.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"
-  urlBootstrap3Css :: a -> Either (Route a) Text
-  urlBootstrap3Css _ = Right "//netdna.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"
+  urlBootstrap3Js :: a -> Prelude.Either (Route a) Text
+  urlBootstrap3Js _ = Prelude.Right "//netdna.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"
+  urlBootstrap3Css :: a -> Prelude.Either (Route a) Text
+  urlBootstrap3Css _ = Prelude.Right "//netdna.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"
 
-  urlBrightThemeCss :: a -> Either (Route a) Text
-  urlBrightThemeCss _ = Right "//cdnjs.cloudflare.com/ajax/libs/pnotify/2.1.0/pnotify.brighttheme.min.css"
+  urlBrightThemeCss :: a -> Prelude.Either (Route a) Text
+  urlBrightThemeCss _ = Prelude.Right "//cdnjs.cloudflare.com/ajax/libs/pnotify/2.1.0/pnotify.brighttheme.min.css"
 
-  urlFontAwesomeCss :: a -> Either (Route a) Text
-  urlFontAwesomeCss _ = Right "//netdna.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css"
+  urlFontAwesomeCss :: a -> Prelude.Either (Route a) Text
+  urlFontAwesomeCss _ = Prelude.Right "//netdna.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css"
 
 notifyKey :: Text
 notifyKey = "_PNotify"
@@ -203,8 +276,9 @@ setPNotify n = do
 
 optionalLoadJsCss :: (MonadWidget m, YesodJqueryPnotify (HandlerSite m)) =>
                      HandlerSite m -> [PNotify] -> m()
-optionalLoadJsCss y = sequence_ . map trans . nub . map fromJust . filter isJust . map _styling
+optionalLoadJsCss y = mapM_ trans . uniqueAsDefault BrightTheme
     where
+      uniqueAsDefault def = nub . map (maybe def id . _styling)
       trans s = case s of
         JqueryUI
           -> addStylesheetEither $ urlJqueryUiCss y

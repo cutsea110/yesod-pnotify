@@ -1,5 +1,7 @@
 module Yesod.Goodies.PNotify.Types where
 
+import Data.Text (Text)
+
 data NotifyType = Notice
                 | Info
                 | Success
@@ -22,3 +24,13 @@ data AnimateSpeed = Slow
                   | Normal
                   | Fast
                   deriving (Eq, Ord, Enum)
+
+data Dir = Up
+         | Down
+         | Right
+         | Left
+         deriving (Eq, Ord, Enum)
+
+data Push = Top
+          | Bottom
+          deriving (Eq, Ord, Enum)
