@@ -57,7 +57,8 @@ postHomeR = do
                         , _type = Just t
                         }
         | t <- [Notice ..]
-        , s <- [JqueryUI ..]] setPNotify
+        , s <- [JqueryUI ..]
+        ] setPNotify
   redirect HomeR
   where
     fromStyling :: NotifyStyling -> Text

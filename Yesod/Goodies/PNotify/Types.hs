@@ -1,5 +1,7 @@
 module Yesod.Goodies.PNotify.Types where
 
+import Data.Text (Text)
+
 data NotifyType = Notice
                 | Info
                 | Success

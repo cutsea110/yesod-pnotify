@@ -27,8 +27,58 @@ import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.Encoding as TL (decodeUtf8, encodeUtf8)
 import Text.Julius (RawJS(..))
 
-import Yesod.Goodies.PNotify.Types
+import Yesod.Goodies.PNotify.Types hiding (_animation)
 import Yesod.Goodies.PNotify.Types.Instances
+
+data Stack = Stack { _addpos2    :: Maybe Int
+                   , _animation' :: Maybe Bool
+                   , _dir1       :: Maybe Dir
+                   , _dir2       :: Maybe Dir
+                   , _firstpos1  :: Maybe Int
+                   , _firstpos2  :: Maybe Int
+                   , _push       :: Maybe Push
+                   , _spacing1   :: Maybe Int
+                   , _spacing2   :: Maybe Int
+                   , _context    :: Maybe Text
+                   }
+           deriving (Read, Show, Eq, Ord)
+
+instance FromJSON Stack where
+  parseJSON (Object v) = Stack <$>
+                         v .:? "addpos2" <*>
+                         v .:? "animation" <*>
+                         v .:? "dir1" <*>
+                         v .:? "dir2" <*>
+                         v .:? "firstpos1" <*>
+                         v .:? "firstpos2" <*>
+                         v .:? "push" <*>
+                         v .:? "spacing1" <*>
+                         v .:? "spacing2" <*>
+                         v .:? "context"
+
+instance ToJSON Stack where
+  toJSON (Stack { _addpos2
+                , _animation'
+                , _dir1
+                , _dir2
+                , _firstpos1
+                , _firstpos2
+                , _push
+                , _spacing1
+                , _spacing2
+                , _context
+                })
+      = object $ maybe [] (\x -> ["addpos2" .= x]) _addpos2 ++
+                 maybe [] (\x -> ["animation" .= x]) _animation' ++
+                 maybe [] (\x -> ["dir1" .= x]) _dir1 ++
+                 maybe [] (\x -> ["dir2" .= x]) _dir2 ++
+                 maybe [] (\x -> ["firstpos1" .= x]) _firstpos1 ++
+                 maybe [] (\x -> ["firstpos2" .= x]) _firstpos2 ++
+                 maybe [] (\x -> ["push" .= x]) _push ++
+                 maybe [] (\x -> ["spacing1" .= x]) _spacing1 ++
+                 maybe [] (\x -> ["spacing2" .= x]) _spacing2 ++
+                 maybe [] (\x -> ["context" .= x]) _context ++
+                 []
 
 data PNotify = PNotify
                { _title                    :: Maybe (Prelude.Either Bool Text)
@@ -53,8 +103,10 @@ data PNotify = PNotify
                , _mouse_reset              :: Maybe Bool
                , _remove                   :: Maybe Bool
                , _insert_brs               :: Maybe Bool
+               , _stack                    :: Maybe Stack
                }
              deriving (Show, Read, Eq, Ord)
+
 instance FromJSON PNotify where
   parseJSON (Object v) = PNotify <$>
                          v .:? "title" <*>
@@ -78,7 +130,8 @@ instance FromJSON PNotify where
                          v .:? "delay" <*>
                          v .:? "mouse_reset" <*>
                          v .:? "remove" <*>
-                         v .:? "insert_brs"
+                         v .:? "insert_brs" <*>
+                         v .:? "stack"
   parseJSON _ = mzero
 
 instance ToJSON PNotify where
@@ -104,6 +157,7 @@ instance ToJSON PNotify where
                   , _mouse_reset
                   , _remove
                   , _insert_brs
+                  , _stack
                   })
       = object $ maybe [] (\x -> ["title" .= x]) _title ++
                  maybe [] (\x -> ["title_escape" .= x]) _title_escape ++
@@ -127,6 +181,7 @@ instance ToJSON PNotify where
                  maybe [] (\x -> ["mouse_reset" .= x]) _mouse_reset ++
                  maybe [] (\x -> ["remove" .= x]) _remove ++
                  maybe [] (\x -> ["insert_brs" .= x]) _insert_brs ++
+                 maybe [] (\x -> ["stack" .= x]) _stack ++
                  []
 
 defaultPNotify :: PNotify
@@ -153,7 +208,22 @@ defaultPNotify = PNotify
                  , _mouse_reset             = Nothing
                  , _remove                  = Nothing
                  , _insert_brs              = Nothing
+                 , _stack                   = Nothing
                  }
+
+defaultStack :: Stack
+defaultStack = Stack
+               { _addpos2     = Nothing
+               , _animation'  = Nothing
+               , _dir1        = Nothing
+               , _dir2        = Nothing
+               , _firstpos1   = Nothing
+               , _firstpos2   = Nothing
+               , _push        = Nothing
+               , _spacing1    = Nothing
+               , _spacing2    = Nothing
+               , _context     = Nothing
+               }
 
 instance RawJS [PNotify] where
   rawJS = rawJS . TL.decodeUtf8 . encode
