@@ -13,7 +13,8 @@ import Yesod.Goodies.PNotify
 data Demo = Demo
 
 mkYesod "Demo" [parseRoutes|
-/ HomeR GET POST
+/            LoginR GET POST
+/home/#Text  HomeR  GET
 |]
 
 instance Yesod Demo where
@@ -36,44 +37,49 @@ $doctype 5
 
 instance YesodJquery Demo
 instance YesodJqueryPnotify Demo
+instance RenderMessage Demo FormMessage where
+    renderMessage _ _ = defaultFormMessage
 
-getHomeR :: Handler Html
-getHomeR = do
-  x <- newIdent
+
+data Account = Account { ident :: Text, passwd :: Text } deriving Show
+accountForm :: Html -> MForm Handler (FormResult Account, Widget)
+accountForm = renderDivs $ Account
+              <$> areq textField "Id" Nothing
+              <*> areq passwordField "Pass" Nothing
+
+getLoginR :: Handler Html
+getLoginR = do
+  (w, e) <- generateFormPost accountForm
   defaultLayout $ do
-    setTitle "PNotify sample"
-    [whamlet|
-<h1>This is a sample</h1>
-<form method=post action=@{HomeR}>
-  <label for=#{x}>PNotify</label>
-  <input id=#{x} type=submit value="Click Me!">
-|]
+    setTitle "Login"
+    [whamlet|<p>Login
+     <form method=post action=@{LoginR} enctype=#{e}>
+       ^{w}
+       <input type=submit value=Login>
+     <span>Please input guest/guest for ID/Pass, and Click Login button.
+    |]
 
-postHomeR :: Handler Html
-postHomeR = do
-  forM_ [defaultPNotify { _title = Just $ Prelude.Right $ mkTitle s t
-                        , _text = Just $ Prelude.Right "Look at my beautiful styling! ^_^"
-                        , _styling = Just s
-                        , _type = Just t
-                        }
-        | t <- [Notice ..]
-        , s <- [JqueryUI ..]
-        ] setPNotify
-  redirect HomeR
-  where
-    fromStyling :: NotifyStyling -> Text
-    fromStyling JqueryUI = "jQuery UI"
-    fromStyling Bootstrap3 = "Bootstrap"
-    fromStyling BrightTheme = "Bright Theme"
-    fromStyling FontAwesome = "Font Awesome"
+postLoginR :: Handler Html
+postLoginR = do
+  ((r, w), e) <- runFormPost accountForm
+  case r of
+    FormSuccess acc -> do
+      setPNotify $ defaultPNotify { _type = Just Success
+                                  , _styling = Just BrightTheme
+                                  , _title = Just $ Prelude.Right "Hello"
+                                  , _text = Just $ Prelude.Right $ "Welcome, " `T.append` ident acc
+                                  }
+      redirect (HomeR $ ident acc)
+    _ -> do
+      setPNotify $ defaultPNotify { _type = Just Error
+                                  , _styling = Just BrightTheme
+                                  , _title = Just $ Prelude.Right "Bye"
+                                  , _text = Just $ Prelude.Right "Try again."
+                                  }
+      redirect LoginR
 
-    fromType Notice = "Notice"
-    fromType Info = "Info"
-    fromType Success = "Success"
-    fromType Error = "Error"
-
-    mkTitle s t = fromStyling s `T.append` " " `T.append` fromType t
-
+getHomeR :: Text -> Handler Html
+getHomeR name = defaultLayout [whamlet|<p>`#{name}' Logged in.|]
 
 main :: IO ()
 main = warp 3000 Demo
