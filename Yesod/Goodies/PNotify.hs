@@ -13,6 +13,7 @@ module Yesod.Goodies.PNotify
 import Yesod
 import Yesod.Form.Jquery hiding (urlJqueryJs, urlJqueryUiCss)
 
+import Data.Aeson ((.:?))
 import Control.Monad (mzero)
 import Control.Monad.Trans.Maybe
 import Data.Aeson (FromJSON(..), ToJSON(..), encode, decode)
@@ -28,53 +29,53 @@ import Yesod.Goodies.PNotify.Types.Instances
 
 data PNotify = PNotify
                { _title                    :: Either Bool Text
-               , _title_escape             :: Either Bool Text
+               , _title_escape             :: Maybe (Either Bool Text)
                , _text                     :: Either Bool Text
-               , _text_escape              :: Either Bool Text
+               , _text_escape              :: Maybe (Either Bool Text)
                , _styling                  :: NotifyStyling
-               , _addclass                 :: Text
-               , _cornerclass              :: Text
-               , _auto_display             :: Bool
-               , _width                    :: Text
-               , _min_height               :: Text
-               , _type                     :: NotifyType
-               , _icon                     :: Either Bool Text
-               , _animation                :: AnimationType
-               , _animate_speed            ::AnimateSpeed
-               , _position_animate_speed   :: Int
-               , _opacity                  :: Double
-               , _shadow                   :: Bool
-               , _hide                     :: Bool
-               , _delay                    :: Int
-               , _mouse_reset              :: Bool
-               , _remove                   :: Bool
-               , _insert_brs               :: Bool
+               , _addclass                 :: Maybe Text
+               , _cornerclass              :: Maybe Text
+               , _auto_display             :: Maybe Bool
+               , _width                    :: Maybe Text
+               , _min_height               :: Maybe Text
+               , _type                     :: Maybe NotifyType
+               , _icon                     :: Maybe (Either Bool Text)
+               , _animation                :: Maybe AnimationType
+               , _animate_speed            :: Maybe AnimateSpeed
+               , _position_animate_speed   :: Maybe Int
+               , _opacity                  :: Maybe Double
+               , _shadow                   :: Maybe Bool
+               , _hide                     :: Maybe Bool
+               , _delay                    :: Maybe Int
+               , _mouse_reset              :: Maybe Bool
+               , _remove                   :: Maybe Bool
+               , _insert_brs               :: Maybe Bool
                }
              deriving (Show, Read, Eq, Ord)
 instance FromJSON PNotify where
   parseJSON (Object v) = PNotify <$>
                          v .: "title" <*>
-                         v .: "title_escape" <*>
+                         v .:? "title_escape" <*>
                          v .: "text" <*>
-                         v .: "text_escape" <*>
+                         v .:? "text_escape" <*>
                          v .: "styling" <*>
-                         v .: "addclass" <*>
-                         v .: "cornerclass" <*>
-                         v .: "auto_display" <*>
-                         v .: "width" <*>
-                         v .: "min_height" <*>
-                         v .: "type" <*>
-                         v .: "icon" <*>
-                         v .: "animation" <*>
-                         v .: "animate_speed" <*>
-                         v .: "position_animate_speed" <*>
-                         v .: "opacity" <*>
-                         v .: "shadow" <*>
-                         v .: "hide" <*>
-                         v .: "delay" <*>
-                         v .: "mouse_reset" <*>
-                         v .: "remove" <*>
-                         v .: "insert_brs"
+                         v .:? "addclass" <*>
+                         v .:? "cornerclass" <*>
+                         v .:? "auto_display" <*>
+                         v .:? "width" <*>
+                         v .:? "min_height" <*>
+                         v .:? "type" <*>
+                         v .:? "icon" <*>
+                         v .:? "animation" <*>
+                         v .:? "animate_speed" <*>
+                         v .:? "position_animate_speed" <*>
+                         v .:? "opacity" <*>
+                         v .:? "shadow" <*>
+                         v .:? "hide" <*>
+                         v .:? "delay" <*>
+                         v .:? "mouse_reset" <*>
+                         v .:? "remove" <*>
+                         v .:? "insert_brs"
   parseJSON _ = mzero
 
 instance ToJSON PNotify where
@@ -101,55 +102,54 @@ instance ToJSON PNotify where
                   , _remove
                   , _insert_brs
                   })
-      = object [ "title"                    .= _title
-               , "title_escape"             .= _title_escape
-               , "text"                     .= _text
-               , "text_escape"              .= _text_escape
-               , "styling"                  .= _styling
-               , "addclass"                 .= _addclass
-               , "cornerclass"              .= _cornerclass
-               , "auto_display"             .= _auto_display
-               , "width"                    .= _width
-               , "min_height"               .= _min_height
-               , "type"                     .= _type
-               , "icon"                     .= _icon
-               , "animation"                .= _animation
-               , "animate_speed"            .= _animate_speed
-               , "position_animate_speed"   .= _position_animate_speed
-               , "opacity"                  .= _opacity
-               , "shadow"                   .= _shadow
-               , "hide"                     .= _hide
-               , "delay"                    .= _delay
-               , "mouse_reset"              .= _mouse_reset
-               , "remove"                   .= _remove
-               , "insert_brs"               .= _insert_brs
-               ]
-
+      = object $ [ "title" .= _title] ++
+                 maybe [] (\x -> ["title_escape" .= x]) _title_escape ++
+                 ["text" .= _text] ++
+                 maybe [] (\x -> ["text_escape" .= x]) _text_escape ++
+                 ["styling" .= _styling] ++
+                 maybe [] (\x -> ["addclass" .= x]) _addclass ++
+                 maybe [] (\x -> ["cornerclass" .= x]) _cornerclass ++
+                 maybe [] (\x -> ["auto_display" .= x]) _auto_display ++
+                 maybe [] (\x -> ["width" .= x]) _width ++
+                 maybe [] (\x -> ["min_height" .= x]) _min_height ++
+                 maybe [] (\x -> ["type" .= x]) _type ++
+                 maybe [] (\x -> ["icon" .= x]) _icon ++
+                 maybe [] (\x -> ["animation" .= x]) _animation ++
+                 maybe [] (\x -> ["animate_speed" .= x]) _animate_speed ++
+                 maybe [] (\x -> ["position_animate_speed" .= x]) _position_animate_speed ++
+                 maybe [] (\x -> ["opacity" .= x]) _opacity ++
+                 maybe [] (\x -> ["shadow" .= x]) _shadow ++
+                 maybe [] (\x -> ["hide" .= x]) _hide ++
+                 maybe [] (\x -> ["delay" .= x]) _delay ++
+                 maybe [] (\x -> ["mouse_reset" .= x]) _mouse_reset ++
+                 maybe [] (\x -> ["remove" .= x]) _remove ++
+                 maybe [] (\x -> ["insert_brs" .= x]) _insert_brs ++
+                 []
 
 defaultPNotify :: PNotify
 defaultPNotify = PNotify
                  { _title                   = Left False
-                 , _title_escape            = Left False
+                 , _title_escape            = Nothing
                  , _text                    = Left False
-                 , _text_escape             = Left False
+                 , _text_escape             = Nothing
                  , _styling                 = BrightTheme
-                 , _addclass                = T.empty
-                 , _cornerclass             = T.empty
-                 , _auto_display            = True
-                 , _width                   = "300px"
-                 , _min_height              = "16px"
-                 , _type                    = Notice
-                 , _icon                    = Left True
-                 , _animation               = Fade
-                 , _animate_speed           = Slow
-                 , _position_animate_speed  = 500
-                 , _opacity                 = 1.0
-                 , _shadow                  = True
-                 , _hide                    = True
-                 , _delay                   = 8000
-                 , _mouse_reset             = True
-                 , _remove                  = True
-                 , _insert_brs              = True
+                 , _addclass                = Nothing
+                 , _cornerclass             = Nothing
+                 , _auto_display            = Nothing
+                 , _width                   = Nothing
+                 , _min_height              = Nothing
+                 , _type                    = Nothing
+                 , _icon                    = Nothing
+                 , _animation               = Nothing
+                 , _animate_speed           = Nothing
+                 , _position_animate_speed  = Nothing
+                 , _opacity                 = Nothing
+                 , _shadow                  = Nothing
+                 , _hide                    = Nothing
+                 , _delay                   = Nothing
+                 , _mouse_reset             = Nothing
+                 , _remove                  = Nothing
+                 , _insert_brs              = Nothing
                  }
 
 instance RawJS [PNotify] where
