@@ -13,11 +13,11 @@ module Yesod.Goodies.PNotify
 import Yesod
 import Yesod.Form.Jquery hiding (urlJqueryJs, urlJqueryUiCss)
 
-import Data.Aeson ((.:?))
 import Control.Monad (mzero)
 import Control.Monad.Trans.Maybe
-import Data.Aeson (FromJSON(..), ToJSON(..), encode, decode)
+import Data.Aeson (FromJSON(..), ToJSON(..), encode, decode, (.:?))
 import Data.List (nub)
+import Data.Maybe (isJust, fromJust)
 import Data.Text (Text)
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as TL
@@ -28,11 +28,11 @@ import Yesod.Goodies.PNotify.Types
 import Yesod.Goodies.PNotify.Types.Instances
 
 data PNotify = PNotify
-               { _title                    :: Either Bool Text
+               { _title                    :: Maybe (Either Bool Text)
                , _title_escape             :: Maybe (Either Bool Text)
-               , _text                     :: Either Bool Text
+               , _text                     :: Maybe (Either Bool Text)
                , _text_escape              :: Maybe (Either Bool Text)
-               , _styling                  :: NotifyStyling
+               , _styling                  :: Maybe (NotifyStyling)
                , _addclass                 :: Maybe Text
                , _cornerclass              :: Maybe Text
                , _auto_display             :: Maybe Bool
@@ -54,11 +54,11 @@ data PNotify = PNotify
              deriving (Show, Read, Eq, Ord)
 instance FromJSON PNotify where
   parseJSON (Object v) = PNotify <$>
-                         v .: "title" <*>
+                         v .:? "title" <*>
                          v .:? "title_escape" <*>
-                         v .: "text" <*>
+                         v .:? "text" <*>
                          v .:? "text_escape" <*>
-                         v .: "styling" <*>
+                         v .:? "styling" <*>
                          v .:? "addclass" <*>
                          v .:? "cornerclass" <*>
                          v .:? "auto_display" <*>
@@ -102,11 +102,11 @@ instance ToJSON PNotify where
                   , _remove
                   , _insert_brs
                   })
-      = object $ [ "title" .= _title] ++
+      = object $ maybe [] (\x -> ["title" .= x]) _title ++
                  maybe [] (\x -> ["title_escape" .= x]) _title_escape ++
-                 ["text" .= _text] ++
+                 maybe [] (\x -> ["text" .= x]) _text ++
                  maybe [] (\x -> ["text_escape" .= x]) _text_escape ++
-                 ["styling" .= _styling] ++
+                 maybe [] (\x -> ["styling" .= x]) _styling ++
                  maybe [] (\x -> ["addclass" .= x]) _addclass ++
                  maybe [] (\x -> ["cornerclass" .= x]) _cornerclass ++
                  maybe [] (\x -> ["auto_display" .= x]) _auto_display ++
@@ -128,11 +128,11 @@ instance ToJSON PNotify where
 
 defaultPNotify :: PNotify
 defaultPNotify = PNotify
-                 { _title                   = Left False
+                 { _title                   = Nothing
                  , _title_escape            = Nothing
-                 , _text                    = Left False
+                 , _text                    = Nothing
                  , _text_escape             = Nothing
-                 , _styling                 = BrightTheme
+                 , _styling                 = Nothing
                  , _addclass                = Nothing
                  , _cornerclass             = Nothing
                  , _auto_display            = Nothing
@@ -203,7 +203,7 @@ setPNotify n = do
 
 optionalLoadJsCss :: (MonadWidget m, YesodJqueryPnotify (HandlerSite m)) =>
                      HandlerSite m -> [PNotify] -> m()
-optionalLoadJsCss y = sequence_ . map trans . nub . map _styling
+optionalLoadJsCss y = sequence_ . map trans . nub . map fromJust . filter isJust . map _styling
     where
       trans s = case s of
         JqueryUI
