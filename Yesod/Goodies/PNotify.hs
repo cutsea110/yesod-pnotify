@@ -30,6 +30,58 @@ import Text.Julius (RawJS(..))
 import Yesod.Goodies.PNotify.Types hiding (_animation)
 import Yesod.Goodies.PNotify.Types.Instances
 
+data Buttons = Buttons { _closer            :: Maybe Bool
+                       , _closer_hover      :: Maybe Bool
+                       , _sticker           :: Maybe Bool
+                       , _sticker_hover     :: Maybe Bool
+                       , _show_on_nonblock  :: Maybe Bool
+                       , _labels            :: Maybe Labels
+                       }
+               deriving (Read, Show, Eq, Ord)
+
+instance FromJSON Buttons where
+  parseJSON (Object v) = Buttons <$>
+                         v .:? "closer" <*>
+                         v .:? "closer_hover" <*>
+                         v .:? "sticker" <*>
+                         v .:? "sticker_hover" <*>
+                         v .:? "show_on_nonblock" <*>
+                         v .:? "labels"
+
+instance ToJSON Buttons where
+  toJSON (Buttons { _closer
+                  , _closer_hover
+                  , _sticker
+                  , _sticker_hover
+                  , _show_on_nonblock
+                  , _labels
+                  })
+      = object $ maybe [] (\x -> ["closer" .= x]) _closer ++
+                 maybe [] (\x -> ["closer_hover" .= x]) _closer_hover ++
+                 maybe [] (\x -> ["sticker" .= x]) _sticker ++
+                 maybe [] (\x -> ["sticker_hover" .= x]) _sticker_hover ++
+                 maybe [] (\x -> ["show_on_nonblock" .= x]) _show_on_nonblock ++
+                 maybe [] (\x -> ["labels" .= x]) _labels ++
+                 []
+
+data Labels = Labels { _close :: Maybe Text
+                     , _stick :: Maybe Text
+                     }
+              deriving (Read, Show, Eq, Ord)
+
+instance FromJSON Labels where
+  parseJSON (Object v) = Labels <$>
+                         v .:? "close" <*>
+                         v .:? "stick"
+
+instance ToJSON Labels where
+  toJSON (Labels { _close
+                 , _stick
+                 })
+      = object $ maybe [] (\x -> ["close" .= x]) _close ++
+                 maybe [] (\x -> ["stick" .= x]) _stick ++
+                 []
+
 data Stack = Stack { _addpos2    :: Maybe Int
                    , _animation' :: Maybe Bool
                    , _dir1       :: Maybe Dir
@@ -234,10 +286,36 @@ class YesodJquery a => YesodJqueryPnotify a where
   urlJqueryUiCss :: a -> Prelude.Either (Route a) Text
   urlJqueryUiCss _ = Prelude.Right "//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css"
   
-  urlPnotifyJs :: a -> Prelude.Either (Route a) Text
-  urlPnotifyJs _ = Prelude.Right "//cdnjs.cloudflare.com/ajax/libs/pnotify/2.1.0/pnotify.core.min.js"
-  urlPnotifyCss :: a -> Prelude.Either (Route a) Text
-  urlPnotifyCss _ = Prelude.Right "//cdnjs.cloudflare.com/ajax/libs/pnotify/2.1.0/pnotify.core.min.css"
+  urlPnotifyBrightthemeCss :: a -> Prelude.Either (Route a) Text
+  urlPnotifyBrightthemeCss _ = Prelude.Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.brighttheme.min.css"
+  urlPnotifyButtonsJs :: a -> Prelude.Either (Route a) Text
+  urlPnotifyButtonsJs _ = Prelude.Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.buttons.min.js"
+  urlPnotifyButtonsCss :: a -> Prelude.Either (Route a) Text
+  urlPnotifyButtonsCss _ = Prelude.Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.buttons.min.css"
+  urlPnotifyCallbacksJs :: a -> Prelude.Either (Route a) Text
+  urlPnotifyCallbacksJs _ = Prelude.Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.callbacks.min.js"
+  urlPnotifyConfirmJs :: a -> Prelude.Either (Route a) Text
+  urlPnotifyConfirmJs _ = Prelude.Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.confirm.min.js"
+  urlPnotifyCoreJs :: a -> Prelude.Either (Route a) Text
+  urlPnotifyCoreJs _ = Prelude.Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.core.min.js"
+  urlPnotifyCoreCss :: a -> Prelude.Either (Route a) Text
+  urlPnotifyCoreCss _ = Prelude.Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.core.min.css"
+  urlPnotifyDesktopJs :: a -> Prelude.Either (Route a) Text
+  urlPnotifyDesktopJs _ = Prelude.Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.desktop.min.js"
+  urlPnotifyHistoryJs :: a -> Prelude.Either (Route a) Text
+  urlPnotifyHistoryJs _ = Prelude.Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.history.min.js"
+  urlPnotifyHistoryCss :: a -> Prelude.Either (Route a) Text
+  urlPnotifyHistoryCss _ = Prelude.Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.history.min.css"
+  urlPnotifyMobileJs :: a -> Prelude.Either (Route a) Text
+  urlPnotifyMobileJs _ = Prelude.Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.mobile.min.js"
+  urlPnotifyNonblockJs :: a -> Prelude.Either (Route a) Text
+  urlPnotifyNonblockJs _ = Prelude.Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.nonblock.min.js"
+  urlPnotifyPiconCss :: a -> Prelude.Either (Route a) Text
+  urlPnotifyPiconCss _ = Prelude.Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.picon.min.css"
+  urlPnotifyReferenceJs :: a -> Prelude.Either (Route a) Text
+  urlPnotifyReferenceJs _ = Prelude.Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.reference.min.js"
+  urlPnotifyTooltipJs :: a -> Prelude.Either (Route a) Text
+  urlPnotifyTooltipJs _ = Prelude.Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.tooltip.min.js"
 
   urlBootstrap3Js :: a -> Prelude.Either (Route a) Text
   urlBootstrap3Js _ = Prelude.Right "//netdna.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"
@@ -298,8 +376,22 @@ pnotify y = do
     Nothing -> return ()
     Just ps -> do
       addScriptEither $ urlJqueryJs y
-      addScriptEither $ urlPnotifyJs y
-      addStylesheetEither $ urlPnotifyCss y
+      addScriptEither $ urlPnotifyCoreJs y
+      addStylesheetEither $ urlPnotifyCoreCss y
+
+      addStylesheetEither $ urlPnotifyBrightthemeCss y
+      addScriptEither $ urlPnotifyButtonsJs y
+      addStylesheetEither $ urlPnotifyButtonsCss y
+      addScriptEither $ urlPnotifyCallbacksJs y
+      addScriptEither $ urlPnotifyConfirmJs y
+      addScriptEither $ urlPnotifyDesktopJs y
+      addScriptEither $ urlPnotifyHistoryJs y
+      addStylesheetEither $ urlPnotifyHistoryCss y
+      addScriptEither $ urlPnotifyMobileJs y
+      addScriptEither $ urlPnotifyNonblockJs y
+      addStylesheetEither $ urlPnotifyPiconCss y
+      addScriptEither $ urlPnotifyReferenceJs y
+      addScriptEither $ urlPnotifyTooltipJs y
 
       optionalLoadJsCss y ps
 
