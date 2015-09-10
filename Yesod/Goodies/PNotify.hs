@@ -206,8 +206,9 @@ setPNotify n = do
 
 optionalLoadJsCss :: (MonadWidget m, YesodJqueryPnotify (HandlerSite m)) =>
                      HandlerSite m -> [PNotify] -> m()
-optionalLoadJsCss y = sequence_ . map trans . nub . map fromJust . filter isJust . map _styling
+optionalLoadJsCss y = mapM_ trans . uniqueAsDefault BrightTheme
     where
+      uniqueAsDefault def = nub . map (maybe def id . _styling)
       trans s = case s of
         JqueryUI
           -> addStylesheetEither $ urlJqueryUiCss y

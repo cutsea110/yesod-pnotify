@@ -16,8 +16,6 @@ mkYesod "Demo" [parseRoutes|
 / HomeR GET POST
 |]
 
-
-
 instance Yesod Demo where
   defaultLayout widget = do
     y <- getYesod
@@ -39,9 +37,6 @@ $doctype 5
 instance YesodJquery Demo
 instance YesodJqueryPnotify Demo
 
-instance RenderMessage Demo FormMessage where
-  renderMessage _ _ = defaultFormMessage
-
 getHomeR :: Handler Html
 getHomeR = do
   x <- newIdent
@@ -61,7 +56,7 @@ postHomeR = do
                         , _styling = Just s
                         , _type = Just t
                         }
-         | t <- [Notice ..]
+        | t <- [Notice ..]
         , s <- [JqueryUI ..]] setPNotify
   redirect HomeR
   where
