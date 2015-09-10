@@ -42,46 +42,28 @@ instance YesodJqueryPnotify Demo
 instance RenderMessage Demo FormMessage where
   renderMessage _ _ = defaultFormMessage
 
-data Person = Person { name :: Text
-                     , age :: Int
-                     }
-              deriving (Show)
-personForm :: Html -> MForm Handler (FormResult Person, Widget)
-personForm = renderDivs $ Person
-             <$> areq textField "Name" Nothing
-             <*> areq intField "Age" Nothing
-
 getHomeR :: Handler Html
 getHomeR = do
-  (widget, enctype) <- generateFormPost personForm
-  defaultLayout [whamlet|
-<form method=post action=@{HomeR} enctype=#{enctype}>
-  ^{widget}
-  <input type=submit>
+  x <- newIdent
+  defaultLayout $ do
+    setTitle "PNotify sample"
+    [whamlet|
+<h1>This is a sample</h1>
+<form method=post action=@{HomeR}>
+  <label for=#{x}>PNotify</label>
+  <input id=#{x} type=submit value="Click Me!">
 |]
 
 postHomeR :: Handler Html
 postHomeR = do
-  ((result, _), _) <- runFormPost personForm
-  case result of
-    FormSuccess _ -> do
-      forM_ [defaultPNotify { _title = Just $ Prelude.Right $ mkTitle s t
-                            , _text = Just $ Prelude.Right "Look at my beautiful styling! ^_^"
-                            , _styling = Just s
-                            , _type = Just t
-                            }
-            | t <- [Notice ..]
-            , s <- [JqueryUI ..]] setPNotify
-      redirect HomeR
-    _ -> do
-      forM_ [defaultPNotify { _title = Just $ Prelude.Right $ mkTitle s Error
-                            , _text = Just $ Prelude.Right "Look at my beautiful styling! ^_^"
-                            , _styling = Just s
-                            , _type = Just Error
-                            }
-            | s <- [JqueryUI ..]] setPNotify
-
-      redirect HomeR
+  forM_ [defaultPNotify { _title = Just $ Prelude.Right $ mkTitle s t
+                        , _text = Just $ Prelude.Right "Look at my beautiful styling! ^_^"
+                        , _styling = Just s
+                        , _type = Just t
+                        }
+         | t <- [Notice ..]
+        , s <- [JqueryUI ..]] setPNotify
+  redirect HomeR
   where
     fromStyling :: NotifyStyling -> Text
     fromStyling JqueryUI = "jQuery UI"
