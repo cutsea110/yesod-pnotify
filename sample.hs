@@ -1,6 +1,3 @@
-import Prelude hiding (Either(..))
-import qualified Prelude as Prelude (Either(..))
-
 import Control.Applicative ((<$>),(<*>))
 import Control.Monad (forM_)
 import Data.Text (Text)
@@ -68,22 +65,22 @@ postLoginR = do
       then do
         setPNotify $ defaultPNotify { _type = Just Success
                                     , _styling = Just BrightTheme
-                                    , _title = Just $ Prelude.Right "Hello"
-                                    , _text = Just $ Prelude.Right $ "Welcome, " `T.append` ident acc
+                                    , _title = Just $ Right "Hello"
+                                    , _text = Just $ Right $ "Welcome, " `T.append` ident acc
                                     }
         redirect (HomeR $ ident acc)
       else do
         setPNotify $ defaultPNotify { _type = Just Error
                                     , _styling = Just BrightTheme
-                                    , _title = Just $ Prelude.Right "Try again"
-                                    , _text = Just $ Prelude.Right "Please match the Id and the Pass."
+                                    , _title = Just $ Right "Try again"
+                                    , _text = Just $ Right "Please match the Id and the Pass."
                                     }
         redirect LoginR
     _ -> do
       setPNotify $ defaultPNotify { _type = Just Error
                                   , _styling = Just BrightTheme
-                                  , _title = Just $ Prelude.Right "Fail"
-                                  , _text = Just $ Prelude.Right "What happen?"
+                                  , _title = Just $ Right "Fail"
+                                  , _text = Just $ Right "What happen?"
                                   }
       redirect LoginR
 
