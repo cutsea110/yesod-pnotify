@@ -4,7 +4,7 @@ import Data.Text (Text)
 import qualified Data.Text as T
 
 import Yesod
-import Yesod.Form.Jquery
+import Yesod.Form.Jquery hiding (urlJqueryJs)
 import Yesod.Form.Bootstrap3
 import Yesod.Goodies.PNotify
 
@@ -19,6 +19,7 @@ instance Yesod Demo where
   defaultLayout widget = do
     y <- getYesod
     pc <- widgetToPageContent $ do
+      addScriptEither $ urlJqueryJs y
       addScriptEither $ urlBootstrap3Js y
       addStylesheetEither $ urlBootstrap3Css y
       widget
@@ -31,8 +32,9 @@ $doctype 5
       <meta charset=utf-8>
       ^{pageHead pc}
   <body>
-      <article>
-        ^{pageBody pc}
+      <div .container>
+        <div .row>
+          ^{pageBody pc}
 |]
 
 instance YesodJquery Demo
@@ -46,22 +48,26 @@ accountForm :: AForm Handler Account
 accountForm = Account
               <$> areq textField (bfs ("Id" :: Text)) Nothing
               <*> areq passwordField (bfs ("Pass" :: Text)) Nothing
+              <*  bootstrapSubmit ("Sign in" :: BootstrapSubmit Text)
+
+hGrid = BootstrapHorizontalForm (ColSm 0) (ColSm 4) (ColSm 0) (ColSm 6)
 
 getLoginR :: Handler Html
 getLoginR = do
-  (w, e) <- generateFormPost $ renderBootstrap3 BootstrapBasicForm accountForm
+  (w, e) <- generateFormPost $ renderBootstrap3 hGrid accountForm
   defaultLayout $ do
     setTitle "Login"
-    [whamlet|<p>Login
-     <form role=form method=post action=@{LoginR} enctype=#{e}>
+    [whamlet|
+     <form .form-horizontal role=form method=post action=@{LoginR} enctype=#{e}>
+       <div .form-group>
+         <div .col-sm-4>
+         <h1 .col-sm-6>Sign in
        ^{w}
-       <button type=submit .btn .btn-primary>Sign in
-     <span>Please input guest/guest for ID/Pass, and Click Login button.
     |]
 
 postLoginR :: Handler Html
 postLoginR = do
-  ((r, w), e) <- runFormPost $ renderBootstrap3 BootstrapBasicForm accountForm
+  ((r, w), e) <- runFormPost $ renderBootstrap3 hGrid accountForm
   case r of
     FormSuccess acc ->
       if ident acc == passwd acc
