@@ -4,6 +4,7 @@ module Yesod.Goodies.PNotify
        , module Yesod.Goodies.PNotify.Modules.Buttons
        , module Yesod.Goodies.PNotify.Modules.Desktop
        , module Yesod.Goodies.PNotify.Modules.Nonblock
+       , module Reference
        , module Yesod.Goodies.PNotify.Modules.Stack
        , PNotify(..)
        , YesodJqueryPnotify(..)
