@@ -2,12 +2,72 @@ module Yesod.Goodies.PNotify.Modules.Stack
        ( Stack(..)
        , defaultStack
        )where
-
+import Prelude hiding (Either(..))
 import Data.Aeson
 import Data.Text (Text)
+import qualified Data.Text as T
+import Control.Monad (mzero)
 
 import Yesod.Goodies.PNotify.Types
 import Yesod.Goodies.PNotify.Types.Instances
+
+
+data Dir = Up
+         | Down
+         | Right
+         | Left
+         deriving (Eq, Ord, Enum)
+
+instance Read Dir where
+  readsPrec d r = do
+    (v, s') <- lex r
+    return $ case v of
+      "up" -> (Up, s')
+      "down" -> (Down, s')
+      "right" -> (Right, s')
+      "left" -> (Left, s')
+      _ -> error $ "invalid Dir " ++ v
+
+instance Show Dir where
+  show Up = "up"
+  show Down = "down"
+  show Right = "right"
+  show Left = "left"
+
+instance FromJSON Dir where
+  parseJSON (String v) = return $ read $ T.unpack v
+  parseJSON _ = mzero
+
+instance ToJSON Dir where
+  toJSON Up = String "up"
+  toJSON Down = String "down"
+  toJSON Right = String "right"
+  toJSON Left = String "left"
+
+data Push = Top
+          | Bottom
+          deriving (Eq, Ord, Enum)
+
+instance Read Push where
+  readsPrec d r = do
+    (v, s') <- lex r
+    return $ case v of
+      "top" -> (Top, s')
+      "bottom" -> (Bottom, s')
+      _ -> error $ "invalid Push " ++ v
+
+instance Show Push where
+  show Top = "top"
+  show Bottom = "bottom"
+
+instance FromJSON Push where
+  parseJSON (String v) = return $ read $ T.unpack v
+  parseJSON _ = mzero
+
+instance ToJSON Push where
+  toJSON Top = String "top"
+  toJSON Bottom = String "bottom"
+
 
 data Stack = Stack { _addpos2    :: Maybe Int
                    , _animation  :: Maybe Bool
