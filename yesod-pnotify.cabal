@@ -2,7 +2,7 @@
 -- documentation, see http://haskell.org/cabal/users-guide/
 
 name:                yesod-pnotify
-version:             1.1.0
+version:             1.1.1
 synopsis:            Yet another getMessage/setMessage using pnotify jquery plugins
 description:         Yet another getMessage/setMessage using pnotify jquery plugins
 homepage:            https://github.com/cutsea110/yesod-pnotify
@@ -17,6 +17,15 @@ cabal-version:       >=1.8
 
 library
   exposed-modules:     Yesod.Goodies.PNotify
+                       Yesod.Goodies.PNotify.Types
+                       Yesod.Goodies.PNotify.Types.Instances
+                       Yesod.Goodies.PNotify.Modules.Buttons
+                       Yesod.Goodies.PNotify.Modules.Confirm
+                       Yesod.Goodies.PNotify.Modules.Desktop
+                       Yesod.Goodies.PNotify.Modules.History
+                       Yesod.Goodies.PNotify.Modules.Nonblock
+                       Yesod.Goodies.PNotify.Modules.Reference
+                       Yesod.Goodies.PNotify.Modules.Stack
 
   -- other-modules:       
 
