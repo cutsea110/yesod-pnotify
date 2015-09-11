@@ -3,9 +3,10 @@ module Yesod.Goodies.PNotify
        , module Yesod.Goodies.PNotify.Types.Instances
        , module Buttons
        , module Desktop
-       , module Nonblock
-       , module Stack
        , module History
+       , module Nonblock
+       , module Reference
+       , module Stack
        , PNotify(..)
        , YesodJqueryPnotify(..)
        , getPNotify
