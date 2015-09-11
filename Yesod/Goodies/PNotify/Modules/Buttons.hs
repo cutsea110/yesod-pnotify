@@ -61,7 +61,6 @@ instance ToJSON Buttons where
                  maybe [] (\x -> ["labels" .= x]) _labels ++
                  []
 
-
 defaultButtons :: Buttons
 defaultButtons = Buttons
                  { _closer             = Nothing
