@@ -5,6 +5,7 @@ module Yesod.Goodies.PNotify
        , module Desktop
        , module Nonblock
        , module Stack
+       , module History
        , PNotify(..)
        , YesodJqueryPnotify(..)
        , getPNotify
@@ -35,6 +36,7 @@ import Yesod.Goodies.PNotify.Types
 import Yesod.Goodies.PNotify.Types.Instances
 import qualified Yesod.Goodies.PNotify.Modules.Buttons as Buttons
 import qualified Yesod.Goodies.PNotify.Modules.Desktop as Desktop
+import qualified Yesod.Goodies.PNotify.Modules.History as History
 import qualified Yesod.Goodies.PNotify.Modules.Nonblock as Nonblock
 import qualified Yesod.Goodies.PNotify.Modules.Reference as Reference
 import qualified Yesod.Goodies.PNotify.Modules.Stack as Stack
@@ -66,6 +68,7 @@ data PNotify = PNotify
                , _stack                    :: Maybe Stack.Stack
                , _buttons                  :: Maybe Buttons.Buttons
                , _desktop                  :: Maybe Desktop.Desktop
+               , _history                  :: Maybe History.History
                , _nonblock                 :: Maybe Nonblock.Nonblock
                , _reference                :: Maybe Reference.Reference
                }
@@ -98,6 +101,7 @@ instance FromJSON PNotify where
                          v .:? "stack" <*>
                          v .:? "buttons" <*>
                          v .:? "desktop" <*>
+                         v .:? "history" <*>
                          v .:? "nonblock" <*>
                          v .:? "reference"
   parseJSON _ = mzero
@@ -128,6 +132,7 @@ instance ToJSON PNotify where
                   , _stack
                   , _buttons
                   , _desktop
+                  , _history
                   , _nonblock
                   , _reference
                   })
@@ -156,6 +161,7 @@ instance ToJSON PNotify where
                  maybe [] (\x -> ["stack" .= x]) _stack ++
                  maybe [] (\x -> ["buttons" .= x]) _buttons ++
                  maybe [] (\x -> ["desktop" .= x]) _desktop ++
+                 maybe [] (\x -> ["history" .= x]) _history ++
                  maybe [] (\x -> ["nonblcok" .= x]) _nonblock ++
                  maybe [] (\x -> ["reference" .= x]) _reference ++
                  []
@@ -187,6 +193,7 @@ defaultPNotify = PNotify
                  , _stack                   = Nothing
                  , _buttons                 = Nothing
                  , _desktop                 = Nothing
+                 , _history                 = Nothing
                  , _nonblock                = Nothing
                  , _reference               = Nothing
                  }
