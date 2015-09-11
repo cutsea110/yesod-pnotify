@@ -1,4 +1,7 @@
-module Yesod.Goodies.PNotify.Modules.Reference where
+module Yesod.Goodies.PNotify.Modules.Reference
+       ( Reference(..)
+       , defaultReference
+       )where
 
 import Data.Aeson
 import Data.Text (Text)
