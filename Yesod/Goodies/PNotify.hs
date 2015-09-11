@@ -36,6 +36,7 @@ import Yesod.Goodies.PNotify.Types.Instances
 import qualified Yesod.Goodies.PNotify.Modules.Buttons as Buttons
 import qualified Yesod.Goodies.PNotify.Modules.Desktop as Desktop
 import qualified Yesod.Goodies.PNotify.Modules.Nonblock as Nonblock
+import qualified Yesod.Goodies.PNotify.Modules.Reference as Reference
 import qualified Yesod.Goodies.PNotify.Modules.Stack as Stack
 
 data PNotify = PNotify
@@ -66,6 +67,7 @@ data PNotify = PNotify
                , _buttons                  :: Maybe Buttons.Buttons
                , _desktop                  :: Maybe Desktop.Desktop
                , _nonblock                 :: Maybe Nonblock.Nonblock
+               , _reference                :: Maybe Reference.Reference
                }
              deriving (Show, Read, Eq, Ord)
 
@@ -96,7 +98,8 @@ instance FromJSON PNotify where
                          v .:? "stack" <*>
                          v .:? "buttons" <*>
                          v .:? "desktop" <*>
-                         v .:? "nonblock"
+                         v .:? "nonblock" <*>
+                         v .:? "reference"
   parseJSON _ = mzero
 
 instance ToJSON PNotify where
@@ -126,6 +129,7 @@ instance ToJSON PNotify where
                   , _buttons
                   , _desktop
                   , _nonblock
+                  , _reference
                   })
       = object $ maybe [] (\x -> ["title" .= x]) _title ++
                  maybe [] (\x -> ["title_escape" .= x]) _title_escape ++
@@ -153,6 +157,7 @@ instance ToJSON PNotify where
                  maybe [] (\x -> ["buttons" .= x]) _buttons ++
                  maybe [] (\x -> ["desktop" .= x]) _desktop ++
                  maybe [] (\x -> ["nonblcok" .= x]) _nonblock ++
+                 maybe [] (\x -> ["reference" .= x]) _reference ++
                  []
 
 defaultPNotify :: PNotify
@@ -183,6 +188,7 @@ defaultPNotify = PNotify
                  , _buttons                 = Nothing
                  , _desktop                 = Nothing
                  , _nonblock                = Nothing
+                 , _reference               = Nothing
                  }
 
 instance RawJS [PNotify] where
