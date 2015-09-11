@@ -2,6 +2,8 @@ module Yesod.Goodies.PNotify.Types where
 
 import Data.Text (Text)
 
+type URL = Text
+
 data NotifyType = Notice
                 | Info
                 | Success
