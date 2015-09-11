@@ -82,6 +82,34 @@ instance ToJSON Labels where
                  maybe [] (\x -> ["stick" .= x]) _stick ++
                  []
 
+type URL = Text
+
+data Desktop = Desktop { _desktop'  :: Maybe Bool
+                       , _fallback  :: Maybe Bool
+                       , _icon'     :: Maybe (Prelude.Either Bool URL)
+                       , _tag       :: Maybe Text
+                       }
+               deriving (Read, Show, Eq, Ord)
+
+instance FromJSON Desktop where
+  parseJSON (Object v) = Desktop <$>
+                         v .:? "desktop" <*>
+                         v .:? "fallback" <*>
+                         v .:? "icon" <*>
+                         v .:? "tag"
+
+instance ToJSON Desktop where
+  toJSON (Desktop { _desktop'
+                  , _fallback
+                  , _icon'
+                  , _tag
+                  })
+      = object $ maybe [] (\x -> ["desktop" .= x]) _desktop' ++
+                 maybe [] (\x -> ["fallback" .= x]) _fallback ++
+                 maybe [] (\x -> ["icon" .= x]) _icon' ++
+                 maybe [] (\x -> ["tag" .= x]) _tag ++
+                 []
+
 data Stack = Stack { _addpos2    :: Maybe Int
                    , _animation' :: Maybe Bool
                    , _dir1       :: Maybe Dir
@@ -158,6 +186,7 @@ data PNotify = PNotify
 
                , _stack                    :: Maybe Stack
                , _buttons                  :: Maybe Buttons
+               , _desktop                  :: Maybe Desktop
                }
              deriving (Show, Read, Eq, Ord)
 
@@ -186,7 +215,8 @@ instance FromJSON PNotify where
                          v .:? "remove" <*>
                          v .:? "insert_brs" <*>
                          v .:? "stack" <*>
-                         v .:? "buttons"
+                         v .:? "buttons" <*>
+                         v .:? "desktop"
   parseJSON _ = mzero
 
 instance ToJSON PNotify where
@@ -214,6 +244,7 @@ instance ToJSON PNotify where
                   , _insert_brs
                   , _stack
                   , _buttons
+                  , _desktop
                   })
       = object $ maybe [] (\x -> ["title" .= x]) _title ++
                  maybe [] (\x -> ["title_escape" .= x]) _title_escape ++
@@ -239,6 +270,7 @@ instance ToJSON PNotify where
                  maybe [] (\x -> ["insert_brs" .= x]) _insert_brs ++
                  maybe [] (\x -> ["stack" .= x]) _stack ++
                  maybe [] (\x -> ["buttons" .= x]) _buttons ++
+                 maybe [] (\x -> ["desktop" .= x]) _desktop ++
                  []
 
 defaultPNotify :: PNotify
@@ -267,6 +299,7 @@ defaultPNotify = PNotify
                  , _insert_brs              = Nothing
                  , _stack                   = Nothing
                  , _buttons                 = Nothing
+                 , _desktop                 = Nothing
                  }
 
 defaultStack :: Stack
@@ -291,6 +324,15 @@ defaultButtons = Buttons
                  , _sticker_hover      = Nothing
                  , _show_on_nonblock   = Nothing
                  , _labels             = Nothing
+                 }
+                 
+defaultDesktop :: Desktop
+defaultDesktop = Desktop
+                 { _desktop' = Nothing
+                 , _fallback = Nothing
+                 , _icon'    = Nothing
+                 , _tag      = Nothing
+
                  }
 
 instance RawJS [PNotify] where
