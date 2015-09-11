@@ -17,9 +17,6 @@ module Yesod.Goodies.PNotify
        , defaultPNotify
        ) where
 
-import Prelude hiding (Either(..))
-import qualified Prelude as Prelude (Either(..))
-
 import Yesod
 import Yesod.Form.Jquery hiding (urlJqueryJs, urlJqueryUiCss)
 
@@ -45,10 +42,10 @@ import qualified Yesod.Goodies.PNotify.Modules.Reference as Reference
 import qualified Yesod.Goodies.PNotify.Modules.Stack as Stack
 
 data PNotify = PNotify
-               { _title                    :: Maybe (Prelude.Either Bool Text)
-               , _title_escape             :: Maybe (Prelude.Either Bool Text)
-               , _text                     :: Maybe (Prelude.Either Bool Text)
-               , _text_escape              :: Maybe (Prelude.Either Bool Text)
+               { _title                    :: Maybe (Either Bool Text)
+               , _title_escape             :: Maybe (Either Bool Text)
+               , _text                     :: Maybe (Either Bool Text)
+               , _text_escape              :: Maybe (Either Bool Text)
                , _styling                  :: Maybe NotifyStyling
                , _addclass                 :: Maybe Text
                , _cornerclass              :: Maybe Text
@@ -56,7 +53,7 @@ data PNotify = PNotify
                , _width                    :: Maybe Text
                , _min_height               :: Maybe Text
                , _type                     :: Maybe NotifyType
-               , _icon                     :: Maybe (Prelude.Either Bool Text)
+               , _icon                     :: Maybe (Either Bool Text)
                , _animation                :: Maybe AnimationType
                , _animate_speed            :: Maybe AnimateSpeed
                , _position_animate_speed   :: Maybe Int
@@ -210,52 +207,52 @@ instance RawJS [PNotify] where
   rawJS = rawJS . TL.decodeUtf8 . encode
 
 class YesodJquery a => YesodJqueryPnotify a where
-  urlJqueryJs :: a -> Prelude.Either (Route a) Text
-  urlJqueryJs _ = Prelude.Right "//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"
-  urlJqueryUiCss :: a -> Prelude.Either (Route a) Text
-  urlJqueryUiCss _ = Prelude.Right "//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css"
+  urlJqueryJs :: a -> Either (Route a) Text
+  urlJqueryJs _ = Right "//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"
+  urlJqueryUiCss :: a -> Either (Route a) Text
+  urlJqueryUiCss _ = Right "//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css"
   
-  urlPnotifyBrightthemeCss :: a -> Prelude.Either (Route a) Text
-  urlPnotifyBrightthemeCss _ = Prelude.Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.brighttheme.min.css"
-  urlPnotifyButtonsJs :: a -> Prelude.Either (Route a) Text
-  urlPnotifyButtonsJs _ = Prelude.Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.buttons.min.js"
-  urlPnotifyButtonsCss :: a -> Prelude.Either (Route a) Text
-  urlPnotifyButtonsCss _ = Prelude.Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.buttons.min.css"
-  urlPnotifyCallbacksJs :: a -> Prelude.Either (Route a) Text
-  urlPnotifyCallbacksJs _ = Prelude.Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.callbacks.min.js"
-  urlPnotifyConfirmJs :: a -> Prelude.Either (Route a) Text
-  urlPnotifyConfirmJs _ = Prelude.Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.confirm.min.js"
-  urlPnotifyCoreJs :: a -> Prelude.Either (Route a) Text
-  urlPnotifyCoreJs _ = Prelude.Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.core.min.js"
-  urlPnotifyCoreCss :: a -> Prelude.Either (Route a) Text
-  urlPnotifyCoreCss _ = Prelude.Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.core.min.css"
-  urlPnotifyDesktopJs :: a -> Prelude.Either (Route a) Text
-  urlPnotifyDesktopJs _ = Prelude.Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.desktop.min.js"
-  urlPnotifyHistoryJs :: a -> Prelude.Either (Route a) Text
-  urlPnotifyHistoryJs _ = Prelude.Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.history.min.js"
-  urlPnotifyHistoryCss :: a -> Prelude.Either (Route a) Text
-  urlPnotifyHistoryCss _ = Prelude.Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.history.min.css"
-  urlPnotifyMobileJs :: a -> Prelude.Either (Route a) Text
-  urlPnotifyMobileJs _ = Prelude.Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.mobile.min.js"
-  urlPnotifyNonblockJs :: a -> Prelude.Either (Route a) Text
-  urlPnotifyNonblockJs _ = Prelude.Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.nonblock.min.js"
-  urlPnotifyPiconCss :: a -> Prelude.Either (Route a) Text
-  urlPnotifyPiconCss _ = Prelude.Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.picon.min.css"
-  urlPnotifyReferenceJs :: a -> Prelude.Either (Route a) Text
-  urlPnotifyReferenceJs _ = Prelude.Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.reference.min.js"
-  urlPnotifyTooltipJs :: a -> Prelude.Either (Route a) Text
-  urlPnotifyTooltipJs _ = Prelude.Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.tooltip.min.js"
+  urlPnotifyBrightthemeCss :: a -> Either (Route a) Text
+  urlPnotifyBrightthemeCss _ = Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.brighttheme.min.css"
+  urlPnotifyButtonsJs :: a -> Either (Route a) Text
+  urlPnotifyButtonsJs _ = Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.buttons.min.js"
+  urlPnotifyButtonsCss :: a -> Either (Route a) Text
+  urlPnotifyButtonsCss _ = Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.buttons.min.css"
+  urlPnotifyCallbacksJs :: a -> Either (Route a) Text
+  urlPnotifyCallbacksJs _ = Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.callbacks.min.js"
+  urlPnotifyConfirmJs :: a -> Either (Route a) Text
+  urlPnotifyConfirmJs _ = Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.confirm.min.js"
+  urlPnotifyCoreJs :: a -> Either (Route a) Text
+  urlPnotifyCoreJs _ = Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.core.min.js"
+  urlPnotifyCoreCss :: a -> Either (Route a) Text
+  urlPnotifyCoreCss _ = Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.core.min.css"
+  urlPnotifyDesktopJs :: a -> Either (Route a) Text
+  urlPnotifyDesktopJs _ = Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.desktop.min.js"
+  urlPnotifyHistoryJs :: a -> Either (Route a) Text
+  urlPnotifyHistoryJs _ = Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.history.min.js"
+  urlPnotifyHistoryCss :: a -> Either (Route a) Text
+  urlPnotifyHistoryCss _ = Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.history.min.css"
+  urlPnotifyMobileJs :: a -> Either (Route a) Text
+  urlPnotifyMobileJs _ = Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.mobile.min.js"
+  urlPnotifyNonblockJs :: a -> Either (Route a) Text
+  urlPnotifyNonblockJs _ = Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.nonblock.min.js"
+  urlPnotifyPiconCss :: a -> Either (Route a) Text
+  urlPnotifyPiconCss _ = Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.picon.min.css"
+  urlPnotifyReferenceJs :: a -> Either (Route a) Text
+  urlPnotifyReferenceJs _ = Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.reference.min.js"
+  urlPnotifyTooltipJs :: a -> Either (Route a) Text
+  urlPnotifyTooltipJs _ = Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.tooltip.min.js"
 
-  urlBootstrap3Js :: a -> Prelude.Either (Route a) Text
-  urlBootstrap3Js _ = Prelude.Right "//netdna.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"
-  urlBootstrap3Css :: a -> Prelude.Either (Route a) Text
-  urlBootstrap3Css _ = Prelude.Right "//netdna.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"
+  urlBootstrap3Js :: a -> Either (Route a) Text
+  urlBootstrap3Js _ = Right "//netdna.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"
+  urlBootstrap3Css :: a -> Either (Route a) Text
+  urlBootstrap3Css _ = Right "//netdna.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"
 
-  urlBrightThemeCss :: a -> Prelude.Either (Route a) Text
-  urlBrightThemeCss _ = Prelude.Right "//cdnjs.cloudflare.com/ajax/libs/pnotify/2.1.0/pnotify.brighttheme.min.css"
+  urlBrightThemeCss :: a -> Either (Route a) Text
+  urlBrightThemeCss _ = Right "//cdnjs.cloudflare.com/ajax/libs/pnotify/2.1.0/pnotify.brighttheme.min.css"
 
-  urlFontAwesomeCss :: a -> Prelude.Either (Route a) Text
-  urlFontAwesomeCss _ = Prelude.Right "//netdna.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css"
+  urlFontAwesomeCss :: a -> Either (Route a) Text
+  urlFontAwesomeCss _ = Right "//netdna.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css"
 
 notifyKey :: Text
 notifyKey = "_PNotify"
