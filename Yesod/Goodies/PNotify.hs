@@ -155,7 +155,9 @@ data PNotify = PNotify
                , _mouse_reset              :: Maybe Bool
                , _remove                   :: Maybe Bool
                , _insert_brs               :: Maybe Bool
+
                , _stack                    :: Maybe Stack
+               , _buttons                  :: Maybe Buttons
                }
              deriving (Show, Read, Eq, Ord)
 
@@ -183,7 +185,8 @@ instance FromJSON PNotify where
                          v .:? "mouse_reset" <*>
                          v .:? "remove" <*>
                          v .:? "insert_brs" <*>
-                         v .:? "stack"
+                         v .:? "stack" <*>
+                         v .:? "buttons"
   parseJSON _ = mzero
 
 instance ToJSON PNotify where
@@ -210,6 +213,7 @@ instance ToJSON PNotify where
                   , _remove
                   , _insert_brs
                   , _stack
+                  , _buttons
                   })
       = object $ maybe [] (\x -> ["title" .= x]) _title ++
                  maybe [] (\x -> ["title_escape" .= x]) _title_escape ++
@@ -234,6 +238,7 @@ instance ToJSON PNotify where
                  maybe [] (\x -> ["remove" .= x]) _remove ++
                  maybe [] (\x -> ["insert_brs" .= x]) _insert_brs ++
                  maybe [] (\x -> ["stack" .= x]) _stack ++
+                 maybe [] (\x -> ["buttons" .= x]) _buttons ++
                  []
 
 defaultPNotify :: PNotify
@@ -261,6 +266,7 @@ defaultPNotify = PNotify
                  , _remove                  = Nothing
                  , _insert_brs              = Nothing
                  , _stack                   = Nothing
+                 , _buttons                 = Nothing
                  }
 
 defaultStack :: Stack
@@ -276,6 +282,16 @@ defaultStack = Stack
                , _spacing2    = Nothing
                , _context     = Nothing
                }
+
+defaultButtons :: Buttons
+defaultButtons = Buttons
+                 { _closer             = Nothing
+                 , _closer_hover       = Nothing
+                 , _sticker            = Nothing
+                 , _sticker_hover      = Nothing
+                 , _show_on_nonblock   = Nothing
+                 , _labels             = Nothing
+                 }
 
 instance RawJS [PNotify] where
   rawJS = rawJS . TL.decodeUtf8 . encode
