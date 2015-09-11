@@ -1,4 +1,7 @@
-module Yesod.Goodies.PNotify.Modules.Buttons where
+module Yesod.Goodies.PNotify.Modules.Buttons
+       ( Buttons(..)
+       , defaultButtons
+       )where
 
 import Data.Aeson
 import Data.Text (Text)

@@ -1,10 +1,10 @@
 module Yesod.Goodies.PNotify 
        ( module Yesod.Goodies.PNotify.Types
        , module Yesod.Goodies.PNotify.Types.Instances
-       , module Yesod.Goodies.PNotify.Modules.Buttons
-       , module Yesod.Goodies.PNotify.Modules.Desktop
-       , module Yesod.Goodies.PNotify.Modules.Nonblock
-       , module Yesod.Goodies.PNotify.Modules.Stack
+       , module Buttons
+       , module Desktop
+       , module Nonblock
+       , module Stack
        , PNotify(..)
        , YesodJqueryPnotify(..)
        , getPNotify
@@ -33,10 +33,10 @@ import Text.Julius (RawJS(..))
 
 import Yesod.Goodies.PNotify.Types
 import Yesod.Goodies.PNotify.Types.Instances
-import Yesod.Goodies.PNotify.Modules.Buttons
-import Yesod.Goodies.PNotify.Modules.Desktop
-import Yesod.Goodies.PNotify.Modules.Nonblock
-import Yesod.Goodies.PNotify.Modules.Stack
+import qualified Yesod.Goodies.PNotify.Modules.Buttons as Buttons
+import qualified Yesod.Goodies.PNotify.Modules.Desktop as Desktop
+import qualified Yesod.Goodies.PNotify.Modules.Nonblock as Nonblock
+import qualified Yesod.Goodies.PNotify.Modules.Stack as Stack
 
 data PNotify = PNotify
                { _title                    :: Maybe (Prelude.Either Bool Text)
@@ -62,10 +62,10 @@ data PNotify = PNotify
                , _remove                   :: Maybe Bool
                , _insert_brs               :: Maybe Bool
 
-               , _stack                    :: Maybe Stack
-               , _buttons                  :: Maybe Buttons
-               , _desktop                  :: Maybe Desktop
-               , _nonblock                 :: Maybe Nonblock
+               , _stack                    :: Maybe Stack.Stack
+               , _buttons                  :: Maybe Buttons.Buttons
+               , _desktop                  :: Maybe Desktop.Desktop
+               , _nonblock                 :: Maybe Nonblock.Nonblock
                }
              deriving (Show, Read, Eq, Ord)
 

@@ -1,4 +1,7 @@
-module Yesod.Goodies.PNotify.Modules.Stack where
+module Yesod.Goodies.PNotify.Modules.Stack
+       ( Stack(..)
+       , defaultStack
+       )where
 
 import Data.Aeson
 import Data.Text (Text)
@@ -7,7 +10,7 @@ import Yesod.Goodies.PNotify.Types
 import Yesod.Goodies.PNotify.Types.Instances
 
 data Stack = Stack { _addpos2    :: Maybe Int
-                   , _animation' :: Maybe Bool
+                   , _animation  :: Maybe Bool
                    , _dir1       :: Maybe Dir
                    , _dir2       :: Maybe Dir
                    , _firstpos1  :: Maybe Int
@@ -34,7 +37,7 @@ instance FromJSON Stack where
 
 instance ToJSON Stack where
   toJSON (Stack { _addpos2
-                , _animation'
+                , _animation
                 , _dir1
                 , _dir2
                 , _firstpos1
@@ -45,7 +48,7 @@ instance ToJSON Stack where
                 , _context
                 })
       = object $ maybe [] (\x -> ["addpos2" .= x]) _addpos2 ++
-                 maybe [] (\x -> ["animation" .= x]) _animation' ++
+                 maybe [] (\x -> ["animation" .= x]) _animation ++
                  maybe [] (\x -> ["dir1" .= x]) _dir1 ++
                  maybe [] (\x -> ["dir2" .= x]) _dir2 ++
                  maybe [] (\x -> ["firstpos1" .= x]) _firstpos1 ++
@@ -59,7 +62,7 @@ instance ToJSON Stack where
 defaultStack :: Stack
 defaultStack = Stack
                { _addpos2     = Nothing
-               , _animation'  = Nothing
+               , _animation   = Nothing
                , _dir1        = Nothing
                , _dir2        = Nothing
                , _firstpos1   = Nothing
