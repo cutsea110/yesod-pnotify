@@ -1,6 +1,10 @@
 module Yesod.Goodies.PNotify 
        ( module Yesod.Goodies.PNotify.Types
        , module Yesod.Goodies.PNotify.Types.Instances
+       , module Yesod.Goodies.PNotify.Modules.Buttons
+       , module Yesod.Goodies.PNotify.Modules.Desktop
+       , module Yesod.Goodies.PNotify.Modules.Nonblock
+       , module Yesod.Goodies.PNotify.Modules.Stack
        , PNotify(..)
        , YesodJqueryPnotify(..)
        , getPNotify
@@ -27,156 +31,12 @@ import qualified Data.Text.Lazy as TL
 import qualified Data.Text.Lazy.Encoding as TL (decodeUtf8, encodeUtf8)
 import Text.Julius (RawJS(..))
 
-import Yesod.Goodies.PNotify.Types hiding (_animation)
+import Yesod.Goodies.PNotify.Types
 import Yesod.Goodies.PNotify.Types.Instances
-
-data Buttons = Buttons { _closer            :: Maybe Bool
-                       , _closer_hover      :: Maybe Bool
-                       , _sticker           :: Maybe Bool
-                       , _sticker_hover     :: Maybe Bool
-                       , _show_on_nonblock  :: Maybe Bool
-                       , _labels            :: Maybe Labels
-                       }
-               deriving (Read, Show, Eq, Ord)
-
-instance FromJSON Buttons where
-  parseJSON (Object v) = Buttons <$>
-                         v .:? "closer" <*>
-                         v .:? "closer_hover" <*>
-                         v .:? "sticker" <*>
-                         v .:? "sticker_hover" <*>
-                         v .:? "show_on_nonblock" <*>
-                         v .:? "labels"
-
-instance ToJSON Buttons where
-  toJSON (Buttons { _closer
-                  , _closer_hover
-                  , _sticker
-                  , _sticker_hover
-                  , _show_on_nonblock
-                  , _labels
-                  })
-      = object $ maybe [] (\x -> ["closer" .= x]) _closer ++
-                 maybe [] (\x -> ["closer_hover" .= x]) _closer_hover ++
-                 maybe [] (\x -> ["sticker" .= x]) _sticker ++
-                 maybe [] (\x -> ["sticker_hover" .= x]) _sticker_hover ++
-                 maybe [] (\x -> ["show_on_nonblock" .= x]) _show_on_nonblock ++
-                 maybe [] (\x -> ["labels" .= x]) _labels ++
-                 []
-
-data Labels = Labels { _close :: Maybe Text
-                     , _stick :: Maybe Text
-                     }
-              deriving (Read, Show, Eq, Ord)
-
-instance FromJSON Labels where
-  parseJSON (Object v) = Labels <$>
-                         v .:? "close" <*>
-                         v .:? "stick"
-
-instance ToJSON Labels where
-  toJSON (Labels { _close
-                 , _stick
-                 })
-      = object $ maybe [] (\x -> ["close" .= x]) _close ++
-                 maybe [] (\x -> ["stick" .= x]) _stick ++
-                 []
-
-type URL = Text
-
-data Desktop = Desktop { _desktop'  :: Maybe Bool
-                       , _fallback  :: Maybe Bool
-                       , _icon'     :: Maybe (Prelude.Either Bool URL)
-                       , _tag       :: Maybe Text
-                       }
-               deriving (Read, Show, Eq, Ord)
-
-instance FromJSON Desktop where
-  parseJSON (Object v) = Desktop <$>
-                         v .:? "desktop" <*>
-                         v .:? "fallback" <*>
-                         v .:? "icon" <*>
-                         v .:? "tag"
-
-instance ToJSON Desktop where
-  toJSON (Desktop { _desktop'
-                  , _fallback
-                  , _icon'
-                  , _tag
-                  })
-      = object $ maybe [] (\x -> ["desktop" .= x]) _desktop' ++
-                 maybe [] (\x -> ["fallback" .= x]) _fallback ++
-                 maybe [] (\x -> ["icon" .= x]) _icon' ++
-                 maybe [] (\x -> ["tag" .= x]) _tag ++
-                 []
-
-data Nonblock = Nonblock { _nonblock'         :: Maybe Bool
-                         , _nonblock_opacity  :: Maybe Double
-                         }
-                deriving (Read, Show, Eq, Ord)
-
-instance FromJSON Nonblock where
-  parseJSON (Object v) = Nonblock <$>
-                         v .:? "nonblock" <*>
-                         v .:? "nonblock_opacity"
-
-instance ToJSON Nonblock where
-  toJSON (Nonblock { _nonblock'
-                   , _nonblock_opacity
-                   })
-      = object $ maybe [] (\x -> ["nonblock" .= x]) _nonblock' ++
-                 maybe [] (\x -> ["nonblock_opacity" .= x]) _nonblock_opacity ++
-                 []
-
-data Stack = Stack { _addpos2    :: Maybe Int
-                   , _animation' :: Maybe Bool
-                   , _dir1       :: Maybe Dir
-                   , _dir2       :: Maybe Dir
-                   , _firstpos1  :: Maybe Int
-                   , _firstpos2  :: Maybe Int
-                   , _push       :: Maybe Push
-                   , _spacing1   :: Maybe Int
-                   , _spacing2   :: Maybe Int
-                   , _context    :: Maybe Text
-                   }
-           deriving (Read, Show, Eq, Ord)
-
-instance FromJSON Stack where
-  parseJSON (Object v) = Stack <$>
-                         v .:? "addpos2" <*>
-                         v .:? "animation" <*>
-                         v .:? "dir1" <*>
-                         v .:? "dir2" <*>
-                         v .:? "firstpos1" <*>
-                         v .:? "firstpos2" <*>
-                         v .:? "push" <*>
-                         v .:? "spacing1" <*>
-                         v .:? "spacing2" <*>
-                         v .:? "context"
-
-instance ToJSON Stack where
-  toJSON (Stack { _addpos2
-                , _animation'
-                , _dir1
-                , _dir2
-                , _firstpos1
-                , _firstpos2
-                , _push
-                , _spacing1
-                , _spacing2
-                , _context
-                })
-      = object $ maybe [] (\x -> ["addpos2" .= x]) _addpos2 ++
-                 maybe [] (\x -> ["animation" .= x]) _animation' ++
-                 maybe [] (\x -> ["dir1" .= x]) _dir1 ++
-                 maybe [] (\x -> ["dir2" .= x]) _dir2 ++
-                 maybe [] (\x -> ["firstpos1" .= x]) _firstpos1 ++
-                 maybe [] (\x -> ["firstpos2" .= x]) _firstpos2 ++
-                 maybe [] (\x -> ["push" .= x]) _push ++
-                 maybe [] (\x -> ["spacing1" .= x]) _spacing1 ++
-                 maybe [] (\x -> ["spacing2" .= x]) _spacing2 ++
-                 maybe [] (\x -> ["context" .= x]) _context ++
-                 []
+import Yesod.Goodies.PNotify.Modules.Buttons
+import Yesod.Goodies.PNotify.Modules.Desktop
+import Yesod.Goodies.PNotify.Modules.Nonblock
+import Yesod.Goodies.PNotify.Modules.Stack
 
 data PNotify = PNotify
                { _title                    :: Maybe (Prelude.Either Bool Text)
@@ -324,45 +184,6 @@ defaultPNotify = PNotify
                  , _desktop                 = Nothing
                  , _nonblock                = Nothing
                  }
-
-defaultStack :: Stack
-defaultStack = Stack
-               { _addpos2     = Nothing
-               , _animation'  = Nothing
-               , _dir1        = Nothing
-               , _dir2        = Nothing
-               , _firstpos1   = Nothing
-               , _firstpos2   = Nothing
-               , _push        = Nothing
-               , _spacing1    = Nothing
-               , _spacing2    = Nothing
-               , _context     = Nothing
-               }
-
-defaultButtons :: Buttons
-defaultButtons = Buttons
-                 { _closer             = Nothing
-                 , _closer_hover       = Nothing
-                 , _sticker            = Nothing
-                 , _sticker_hover      = Nothing
-                 , _show_on_nonblock   = Nothing
-                 , _labels             = Nothing
-                 }
-                 
-defaultDesktop :: Desktop
-defaultDesktop = Desktop
-                 { _desktop' = Nothing
-                 , _fallback = Nothing
-                 , _icon'    = Nothing
-                 , _tag      = Nothing
-
-                 }
-
-defaultNonblock :: Nonblock
-defaultNonblock = Nonblock
-                  { _nonblock'        = Nothing
-                  , _nonblock_opacity = Nothing
-                  }
 
 instance RawJS [PNotify] where
   rawJS = rawJS . TL.decodeUtf8 . encode
