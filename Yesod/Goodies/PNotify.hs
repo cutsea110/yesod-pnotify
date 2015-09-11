@@ -110,6 +110,24 @@ instance ToJSON Desktop where
                  maybe [] (\x -> ["tag" .= x]) _tag ++
                  []
 
+data Nonblock = Nonblock { _nonblock'         :: Maybe Bool
+                         , _nonblock_opacity  :: Maybe Double
+                         }
+                deriving (Read, Show, Eq, Ord)
+
+instance FromJSON Nonblock where
+  parseJSON (Object v) = Nonblock <$>
+                         v .:? "nonblock" <*>
+                         v .:? "nonblock_opacity"
+
+instance ToJSON Nonblock where
+  toJSON (Nonblock { _nonblock'
+                   , _nonblock_opacity
+                   })
+      = object $ maybe [] (\x -> ["nonblock" .= x]) _nonblock' ++
+                 maybe [] (\x -> ["nonblock_opacity" .= x]) _nonblock_opacity ++
+                 []
+
 data Stack = Stack { _addpos2    :: Maybe Int
                    , _animation' :: Maybe Bool
                    , _dir1       :: Maybe Dir
@@ -187,6 +205,7 @@ data PNotify = PNotify
                , _stack                    :: Maybe Stack
                , _buttons                  :: Maybe Buttons
                , _desktop                  :: Maybe Desktop
+               , _nonblock                 :: Maybe Nonblock
                }
              deriving (Show, Read, Eq, Ord)
 
@@ -216,7 +235,8 @@ instance FromJSON PNotify where
                          v .:? "insert_brs" <*>
                          v .:? "stack" <*>
                          v .:? "buttons" <*>
-                         v .:? "desktop"
+                         v .:? "desktop" <*>
+                         v .:? "nonblock"
   parseJSON _ = mzero
 
 instance ToJSON PNotify where
@@ -245,6 +265,7 @@ instance ToJSON PNotify where
                   , _stack
                   , _buttons
                   , _desktop
+                  , _nonblock
                   })
       = object $ maybe [] (\x -> ["title" .= x]) _title ++
                  maybe [] (\x -> ["title_escape" .= x]) _title_escape ++
@@ -271,6 +292,7 @@ instance ToJSON PNotify where
                  maybe [] (\x -> ["stack" .= x]) _stack ++
                  maybe [] (\x -> ["buttons" .= x]) _buttons ++
                  maybe [] (\x -> ["desktop" .= x]) _desktop ++
+                 maybe [] (\x -> ["nonblcok" .= x]) _nonblock ++
                  []
 
 defaultPNotify :: PNotify
@@ -300,6 +322,7 @@ defaultPNotify = PNotify
                  , _stack                   = Nothing
                  , _buttons                 = Nothing
                  , _desktop                 = Nothing
+                 , _nonblock                = Nothing
                  }
 
 defaultStack :: Stack
@@ -334,6 +357,12 @@ defaultDesktop = Desktop
                  , _tag      = Nothing
 
                  }
+
+defaultNonblock :: Nonblock
+defaultNonblock = Nonblock
+                  { _nonblock'        = Nothing
+                  , _nonblock_opacity = Nothing
+                  }
 
 instance RawJS [PNotify] where
   rawJS = rawJS . TL.decodeUtf8 . encode
