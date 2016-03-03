@@ -252,7 +252,7 @@ class YesodJquery a => YesodJqueryPnotify a where
   urlBrightThemeCss _ = Right "//cdnjs.cloudflare.com/ajax/libs/pnotify/2.1.0/pnotify.brighttheme.min.css"
 
   urlFontAwesomeCss :: a -> Either (Route a) Text
-  urlFontAwesomeCss _ = Right "//netdna.bootstrapcdn.com/font-awesome/4.4.5/css/font-awesome.min.css"
+  urlFontAwesomeCss _ = Right "//netdna.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css"
 
 notifyKey :: Text
 notifyKey = "_PNotify"
