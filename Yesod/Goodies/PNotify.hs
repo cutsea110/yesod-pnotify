@@ -208,7 +208,7 @@ instance RawJS [PNotify] where
 
 class YesodJquery a => YesodJqueryPnotify a where
   urlJqueryJs :: a -> Either (Route a) Text
-  urlJqueryJs _ = Right "//ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"
+  urlJqueryJs _ = Right "//ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"
   urlJqueryUiCss :: a -> Either (Route a) Text
   urlJqueryUiCss _ = Right "//ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css"
   
@@ -244,15 +244,15 @@ class YesodJquery a => YesodJqueryPnotify a where
   urlPnotifyTooltipJs _ = Right "//cdn.css.net/libs/pnotify/2.1.0/pnotify.tooltip.min.js"
 
   urlBootstrap3Js :: a -> Either (Route a) Text
-  urlBootstrap3Js _ = Right "//netdna.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"
+  urlBootstrap3Js _ = Right "//netdna.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
   urlBootstrap3Css :: a -> Either (Route a) Text
-  urlBootstrap3Css _ = Right "//netdna.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"
+  urlBootstrap3Css _ = Right "//netdna.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
 
   urlBrightThemeCss :: a -> Either (Route a) Text
   urlBrightThemeCss _ = Right "//cdnjs.cloudflare.com/ajax/libs/pnotify/2.1.0/pnotify.brighttheme.min.css"
 
   urlFontAwesomeCss :: a -> Either (Route a) Text
-  urlFontAwesomeCss _ = Right "//netdna.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css"
+  urlFontAwesomeCss _ = Right "//netdna.bootstrapcdn.com/font-awesome/4.4.5/css/font-awesome.min.css"
 
 notifyKey :: Text
 notifyKey = "_PNotify"
